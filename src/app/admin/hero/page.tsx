@@ -1,0 +1,326 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
+import AdminLayout from '@/components/admin/AdminLayout';
+
+interface User {
+  id: number;
+  email: string;
+  full_name: string;
+  role: string;
+}
+
+interface HeroSettings {
+  id: string;
+  video_url: string;
+  mobile_image_url: string | null;
+  desktop_image_url: string | null;
+  title: string;
+  subtitle: string;
+  is_active: boolean;
+}
+
+export default function HeroSettingsPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    video_url: '',
+    mobile_image_url: '',
+    desktop_image_url: '',
+    title: '',
+    subtitle: '',
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+
+    if (!token || !userData) {
+      router.push('/login');
+      return;
+    }
+
+    const parsedUser = JSON.parse(userData);
+    if (parsedUser.role !== 'ADMIN') {
+      toast.error('Accès non autorisé');
+      router.push('/');
+      return;
+    }
+
+    setUser(parsedUser);
+    fetchHeroSettings(token);
+  }, [router]);
+
+  const fetchHeroSettings = async (token: string) => {
+    try {
+      const response = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          query: `
+            query {
+              heroSettings(language: "en") {
+                id
+                video_url
+                mobile_image_url
+                desktop_image_url
+                title
+                subtitle
+                is_active
+              }
+            }
+          `,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.data?.heroSettings) {
+        const settings = data.data.heroSettings;
+        setFormData({
+          video_url: settings.video_url || '',
+          mobile_image_url: settings.mobile_image_url || '',
+          desktop_image_url: settings.desktop_image_url || '',
+          title: settings.title || '',
+          subtitle: settings.subtitle || '',
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching hero settings:', error);
+      toast.error('Erreur lors du chargement des paramètres');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          query: `
+            mutation UpdateHeroSettings($input: HeroSettingsInput!) {
+              updateHeroSettings(input: $input) {
+                id
+                video_url
+                title
+                subtitle
+              }
+            }
+          `,
+          variables: {
+            input: formData,
+          },
+        }),
+      });
+
+      const data = await response.json();
+      if (data.errors) {
+        toast.error(data.errors[0].message);
+      } else {
+        toast.success('Paramètres Hero mis à jour avec succès!');
+      }
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour');
+      console.error('Error:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white font-bold text-xl">CHARGEMENT...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <AdminLayout userName={user?.full_name} userRole={user?.role}>
+      <Toaster position="top-right" />
+
+      <div className="space-y-6 sm:space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">
+            PARAMÈTRES <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-burgundy-500">HERO</span>
+          </h1>
+          <p className="text-base sm:text-lg lg:text-xl text-gray-400">Gérer la vidéo et les images de la page d'accueil</p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-gray-900 border border-gold-500/20 rounded-2xl p-6 sm:p-8 space-y-6">
+            {/* Video URL */}
+            <div>
+              <label className="block text-white font-bold text-lg mb-2">
+                URL de la Vidéo <span className="text-red-500">*</span>
+              </label>
+              <p className="text-gray-400 text-sm mb-3">
+                Entrez l'URL complète de la vidéo hébergée (YouTube, Vimeo, ou lien direct .mp4/.webm)
+              </p>
+              <input
+                type="url"
+                required
+                value={formData.video_url}
+                onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-gold-500 focus:ring-2 focus:ring-gold-500 outline-none transition-all"
+                placeholder="https://example.com/video.mp4"
+              />
+            </div>
+
+            {/* Mobile Image URL */}
+            <div>
+              <label className="block text-white font-bold text-lg mb-2">
+                URL de l'Image Mobile
+              </label>
+              <p className="text-gray-400 text-sm mb-3">
+                Image de secours pour les appareils mobiles (optionnel)
+              </p>
+              <input
+                type="url"
+                value={formData.mobile_image_url}
+                onChange={(e) => setFormData({ ...formData, mobile_image_url: e.target.value })}
+                className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-gold-500 focus:ring-2 focus:ring-gold-500 outline-none transition-all"
+                placeholder="https://example.com/mobile-image.jpg"
+              />
+            </div>
+
+            {/* Desktop Image URL */}
+            <div>
+              <label className="block text-white font-bold text-lg mb-2">
+                URL de l'Image Desktop
+              </label>
+              <p className="text-gray-400 text-sm mb-3">
+                Image de secours pour les ordinateurs de bureau (optionnel)
+              </p>
+              <input
+                type="url"
+                value={formData.desktop_image_url}
+                onChange={(e) => setFormData({ ...formData, desktop_image_url: e.target.value })}
+                className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-gold-500 focus:ring-2 focus:ring-gold-500 outline-none transition-all"
+                placeholder="https://example.com/desktop-image.jpg"
+              />
+            </div>
+
+            {/* Title */}
+            <div>
+              <label className="block text-white font-bold text-lg mb-2">
+                Titre
+              </label>
+              <p className="text-gray-400 text-sm mb-3">
+                Titre principal de la section hero
+              </p>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-gold-500 focus:ring-2 focus:ring-gold-500 outline-none transition-all"
+                placeholder="Bienvenue à Jasmin Rent Cars"
+              />
+            </div>
+
+            {/* Subtitle */}
+            <div>
+              <label className="block text-white font-bold text-lg mb-2">
+                Sous-titre
+              </label>
+              <p className="text-gray-400 text-sm mb-3">
+                Sous-titre de la section hero
+              </p>
+              <textarea
+                value={formData.subtitle}
+                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                rows={3}
+                className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:border-gold-500 focus:ring-2 focus:ring-gold-500 outline-none transition-all resize-none"
+                placeholder="Votre expérience de location de voiture premium"
+              />
+            </div>
+          </div>
+
+          {/* Preview */}
+          {formData.video_url && (
+            <div className="bg-gray-900 border border-gold-500/20 rounded-2xl p-6 sm:p-8">
+              <h3 className="text-white font-bold text-xl mb-4">Aperçu de la Vidéo</h3>
+              <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                {formData.video_url.includes('youtube.com') || formData.video_url.includes('youtu.be') ? (
+                  <iframe
+                    src={formData.video_url.replace('watch?v=', 'embed/')}
+                    className="w-full h-full"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
+                ) : formData.video_url.includes('vimeo.com') ? (
+                  <iframe
+                    src={formData.video_url.replace('vimeo.com/', 'player.vimeo.com/video/')}
+                    className="w-full h-full"
+                    allow="autoplay; fullscreen"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={formData.video_url}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 py-4 bg-gradient-to-r from-gold-600 to-burgundy-600 hover:from-gold-700 hover:to-burgundy-700 text-white font-black text-lg rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-gold-900/50"
+            >
+              {saving ? 'ENREGISTREMENT...' : 'ENREGISTRER LES MODIFICATIONS'}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/admin')}
+              className="px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-bold text-lg rounded-xl transition-all"
+            >
+              ANNULER
+            </button>
+          </div>
+        </form>
+
+        {/* Help Section */}
+        <div className="bg-blue-900/20 border border-blue-500/30 rounded-2xl p-6">
+          <h3 className="text-blue-400 font-bold text-lg mb-3 flex items-center">
+            <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+            Conseils d'utilisation
+          </h3>
+          <ul className="text-blue-300 space-y-2 text-sm">
+            <li>• Pour de meilleures performances, utilisez des vidéos au format .webm ou .mp4</li>
+            <li>• Les vidéos YouTube et Vimeo sont automatiquement converties en iframe</li>
+            <li>• Les images de secours sont affichées si la vidéo ne peut pas être chargée</li>
+            <li>• Recommandé: vidéo de 30-60 secondes, résolution 1920x1080</li>
+          </ul>
+        </div>
+      </div>
+    </AdminLayout>
+  );
+}
