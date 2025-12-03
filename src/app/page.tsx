@@ -439,16 +439,7 @@ export default function LandingPage() {
                     <option value="transfer">{t('airportLocationTransfer')}</option>
                   </select>
                 </div>
-                <div className="form-input">
-                  <label className="block text-xs sm:text-sm font-bold text-gray-300 mb-2 sm:mb-3 uppercase tracking-wide">{t('pickupLocation')}</label>
-                  <input type="text" value={bookingForm.pickupLocation} onChange={(e) => setBookingForm({ ...bookingForm, pickupLocation: e.target.value })}
-                    placeholder={t('enterPickupAddress')} className="w-full px-3 sm:px-4 py-2.5 sm:py-3 md:py-4 border-2 border-gray-700 focus:border-[#FFC800] outline-none text-white bg-[#0a0a0a] placeholder-gray-500 text-sm sm:text-base" required />
-                </div>
-                <div className="form-input">
-                  <label className="block text-xs sm:text-sm font-bold text-gray-300 mb-2 sm:mb-3 uppercase tracking-wide">{t('dropoffLocation')}</label>
-                  <input type="text" value={bookingForm.dropoffLocation} onChange={(e) => setBookingForm({ ...bookingForm, dropoffLocation: e.target.value })}
-                    placeholder={t('enterDestination')} className="w-full px-3 sm:px-4 py-2.5 sm:py-3 md:py-4 border-2 border-gray-700 focus:border-[#FFC800] outline-none text-white bg-[#0a0a0a] placeholder-gray-500 text-sm sm:text-base" required />
-                </div>
+         
                 <div className="form-input">
                   <label className="block text-xs sm:text-sm font-bold text-gray-300 mb-2 sm:mb-3 uppercase tracking-wide">{t('pickupDate')}</label>
                   <input type="date" value={bookingForm.pickupDate} onChange={(e) => setBookingForm({ ...bookingForm, pickupDate: e.target.value })}
