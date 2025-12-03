@@ -377,42 +377,7 @@ export default function LandingPage() {
 
     
 
-      {/* Services Section */}
-      <section id="services" className="py-12 sm:py-16 md:py-24 lg:py-32 bg-[#0a0a0a]">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('ourServices')}</h2>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto">{t('premiumLuxuryTransport')}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-            {[
-              { type: 'marriage', icon: '💍', title: t('wedding'), desc: t('weddingServiceDesc'), gradient: 'from-pink-900/20 to-purple-900/20' },
-              { type: 'transfer', icon: '✈️', title: t('transferTitle'), desc: t('transferServiceDesc'), gradient: 'from-blue-900/20 to-cyan-900/20' }
-            ].map((service) => (
-              <div key={service.type}
-                onClick={() => { setSelectedService(service.type as ServiceType); document.querySelector('#fleet')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="service-card group cursor-pointer bg-[#1a1a1a] border border-gray-800 shadow-2xl hover:shadow-[0_0_40px_rgba(255,200,0,0.3)] transition-all duration-500 overflow-hidden"
-              >
-                <div className={`relative h-40 sm:h-52 md:h-64 lg:h-80 bg-gradient-to-br ${service.gradient} overflow-hidden border-b border-gray-800`}>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/0 transition-all duration-500">
-                    <div className="text-[60px] sm:text-[80px] md:text-[100px] lg:text-[140px] transform group-hover:scale-125 transition-transform duration-700">{service.icon}</div>
-                  </div>
-                </div>
-                <div className="p-4 sm:p-5 md:p-6 lg:p-10">
-                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 sm:mb-3 md:mb-4">{service.title}</h3>
-                  <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4">{service.desc}</p>
-                  <div className="flex items-center text-white font-bold text-xs sm:text-sm md:text-base group-hover:text-[#FFC800] transition-colors">
-                    {t('learnMore')}
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Fleet Section */}
       <section id="fleet" className="py-12 sm:py-16 md:py-24 bg-[#0a0a0a]">
@@ -499,6 +464,43 @@ export default function LandingPage() {
                 {t('viewAvailableVehicles')}
               </button>
             </form>
+          </div>
+        </div>
+      </section>
+
+            {/* Services Section */}
+      <section id="services" className="py-12 sm:py-16 md:py-24 lg:py-32 bg-[#0a0a0a]">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('ourServices')}</h2>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto">{t('premiumLuxuryTransport')}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+            {[
+              { type: 'marriage', icon: '💍', title: t('wedding'), desc: t('weddingServiceDesc'), gradient: 'from-pink-900/20 to-purple-900/20' },
+              { type: 'transfer', icon: '✈️', title: t('transferTitle'), desc: t('transferServiceDesc'), gradient: 'from-blue-900/20 to-cyan-900/20' }
+            ].map((service) => (
+              <div key={service.type}
+                onClick={() => { setSelectedService(service.type as ServiceType); document.querySelector('#fleet')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="service-card group cursor-pointer bg-[#1a1a1a] border border-gray-800 shadow-2xl hover:shadow-[0_0_40px_rgba(255,200,0,0.3)] transition-all duration-500 overflow-hidden"
+              >
+                <div className={`relative h-40 sm:h-52 md:h-64 lg:h-80 bg-gradient-to-br ${service.gradient} overflow-hidden border-b border-gray-800`}>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/0 transition-all duration-500">
+                    <div className="text-[60px] sm:text-[80px] md:text-[100px] lg:text-[140px] transform group-hover:scale-125 transition-transform duration-700">{service.icon}</div>
+                  </div>
+                </div>
+                <div className="p-4 sm:p-5 md:p-6 lg:p-10">
+                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 sm:mb-3 md:mb-4">{service.title}</h3>
+                  <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4">{service.desc}</p>
+                  <div className="flex items-center text-white font-bold text-xs sm:text-sm md:text-base group-hover:text-[#FFC800] transition-colors">
+                    {t('learnMore')}
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
