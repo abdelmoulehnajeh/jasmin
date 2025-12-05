@@ -47,7 +47,13 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
   const calculateTotalDays = () => {
     if (!startDate || !endDate) return 0;
     const diff = endDate.getTime() - startDate.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    // If end date is before start date, return 0 (invalid)
+    if (days < 0) return 0;
+
+    // If same day rental, count as 1 day minimum
+    return days === 0 ? 1 : days;
   };
 
   const totalDays = calculateTotalDays();
@@ -121,7 +127,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-gradient-to-br from-gold-600/10 to-gold-500/6 border border-gold-500/20 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-[#FFC800]/30 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           {/* Close Button */}
           <button
             onClick={onClose}
@@ -187,9 +193,9 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                     <p className="text-white font-semibold text-sm sm:text-base">{car.year}</p>
                   </div>
                   <div>
-                    <span className="text-gold-300 text-xs sm:text-sm">Price</span>
-                    <p className="text-gold-500 font-bold text-lg sm:text-xl">
-                      ${car.price_per_day}/{t('perDay')}
+                    <span className="text-[#FFC800] text-xs sm:text-sm">Price</span>
+                    <p className="text-[#FFC800] font-bold text-lg sm:text-xl">
+                      DT {car.price_per_day}/{t('perDay')}
                     </p>
                   </div>
                 </div>
@@ -202,37 +208,28 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
           </div>
 
           {/* Step Navigation */}
-          <div className="flex border-b border-gray-700">
+          <div className="flex border-b border-[#FFC800]/20">
             <button
               onClick={() => setStep('details')}
-              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base ${
+              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base font-bold ${
                 step === 'details'
-                  ? 'bg-gold-600 text-white'
-                  : 'text-gray-400 hover:bg-gray-700'
+                  ? 'bg-[#FFC800] text-black'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
               }`}
             >
               {t('details')}
             </button>
             <button
               onClick={() => setStep('dates')}
-              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base ${
+              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base font-bold ${
                 step === 'dates'
-                  ? 'bg-gold-600 text-white'
-                  : 'text-gray-400 hover:bg-gray-700'
+                  ? 'bg-[#FFC800] text-black'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
               }`}
             >
               {t('selectDates')}
             </button>
-            <button
-              onClick={() => setStep('locations')}
-              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base ${
-                step === 'locations'
-                  ? 'bg-gold-600 text-white'
-                  : 'text-gray-400 hover:bg-gray-700'
-              }`}
-            >
-              {t('locations')}
-            </button>
+        
           </div>
 
           {/* Modal Content */}
@@ -308,9 +305,16 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                     <input
                       type="date"
                       value={startDate ? startDate.toISOString().split('T')[0] : ''}
-                      onChange={(e) => setStartDate(new Date(e.target.value))}
+                      onChange={(e) => {
+                        const newStartDate = new Date(e.target.value);
+                        setStartDate(newStartDate);
+                        // If end date is now before start date, reset end date
+                        if (endDate && endDate < newStartDate) {
+                          setEndDate(null);
+                        }
+                      }}
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none text-sm sm:text-base"
+                      className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg focus:ring-2 focus:ring-[#FFC800] outline-none text-sm sm:text-base"
                     />
                   </div>
                   <div>
@@ -318,23 +322,31 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                     <input
                       type="date"
                       value={endDate ? endDate.toISOString().split('T')[0] : ''}
-                      onChange={(e) => setEndDate(new Date(e.target.value))}
+                      onChange={(e) => {
+                        const newEndDate = new Date(e.target.value);
+                        // Validate that end date is not before start date
+                        if (startDate && newEndDate < startDate) {
+                          alert('End date cannot be before start date!');
+                          return;
+                        }
+                        setEndDate(newEndDate);
+                      }}
                       min={startDate ? startDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
-                      className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none text-sm sm:text-base"
+                      className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg focus:ring-2 focus:ring-[#FFC800] outline-none text-sm sm:text-base"
                     />
                   </div>
                 </div>
 
                 {startDate && endDate && (
-                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gold-600/20 border border-gold-600 rounded-lg">
+                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-[#FFC800]/20 border-2 border-[#FFC800] rounded-lg">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
                       <div>
-                        <span className="text-gray-400 text-sm sm:text-base">Total Days:</span>
+                        <span className="text-gray-300 text-sm sm:text-base">Total Days:</span>
                         <span className="text-white font-bold ml-2">{totalDays}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400 text-sm sm:text-base">Total Price:</span>
-                        <span className="text-gold-500 font-bold text-xl sm:text-2xl ml-2">
+                        <span className="text-gray-300 text-sm sm:text-base">Total Price:</span>
+                        <span className="text-[#FFC800] font-bold text-xl sm:text-2xl ml-2">
                           ${totalPrice.toFixed(2)}
                         </span>
                       </div>
@@ -385,8 +397,8 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
             <div className="w-full sm:w-auto">
               {totalDays > 0 && (
                 <div className="text-left sm:text-right">
-                  <span className="text-gray-400 text-sm sm:text-base">Total: </span>
-                  <span className="text-gold-500 font-bold text-2xl sm:text-3xl">
+                  <span className="text-gray-300 text-sm sm:text-base">Total: </span>
+                  <span className="text-[#FFC800] font-bold text-2xl sm:text-3xl">
                     ${totalPrice.toFixed(2)}
                   </span>
                 </div>
@@ -402,9 +414,9 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
               <button
                 onClick={handleSubmit}
                 disabled={!startDate || !endDate}
-                className={`flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base ${
+                className={`flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base ${
                   startDate && endDate
-                    ? 'bg-gold-600 hover:bg-gold-700 text-white'
+                    ? 'bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black shadow-lg hover:shadow-xl'
                     : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                 }`}
               >

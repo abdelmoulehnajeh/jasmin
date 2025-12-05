@@ -33,16 +33,50 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [isSpinWheelOpen, setIsSpinWheelOpen] = useState(false);
 
-  const getTranslatedText = (jsonString: string | undefined, fallback: string): string => {
-    if (!jsonString) return fallback;
+  const getTranslatedText = (data: string | object | undefined, fallback: string): string => {
+    if (!data) return fallback;
+
     try {
-      const translations = JSON.parse(jsonString);
-      if (typeof translations === 'object' && translations !== null) {
-        return translations[i18n.language] || translations['en'] || fallback;
+      let translations: any;
+
+      // If data is already an object, use it directly
+      if (typeof data === 'object') {
+        translations = data;
       }
-      return jsonString;
-    } catch {
-      return jsonString;
+      // If data is a string, try to parse it
+      else if (typeof data === 'string') {
+        translations = JSON.parse(data);
+      } else {
+        return fallback;
+      }
+
+      // Check if translations is a valid object with language keys
+      if (typeof translations === 'object' && translations !== null) {
+        // Try current language, then English, then Italian, then French, then Arabic, then fallback
+        const translated = translations[i18n.language] ||
+               translations['en'] ||
+               translations['it'] ||
+               translations['fr'] ||
+               translations['ar'] ||
+               fallback;
+
+        console.log(`Translation for ${i18n.language}:`, translated, 'from:', translations);
+        return translated;
+      }
+
+      // If it's a plain string after parsing, return it
+      if (typeof translations === 'string') {
+        return translations;
+      }
+
+      return fallback;
+    } catch (error) {
+      console.error('Error parsing translation:', error, data);
+      // If parsing fails and data is a string, return it as is
+      if (typeof data === 'string') {
+        return data;
+      }
+      return fallback;
     }
   };
 
@@ -157,6 +191,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log('🌍 Fetching data for language:', i18n.language);
       setLoading(true);
       try {
         const response = await fetch('/api/graphql', {
@@ -179,7 +214,12 @@ export default function LandingPage() {
         });
         const result = await response.json();
         if (result.data?.cars) setCars(result.data.cars);
-        if (result.data?.heroSettings) setHeroSettings(result.data.heroSettings);
+        if (result.data?.heroSettings) {
+          console.log('Hero settings received:', result.data.heroSettings);
+          console.log('Title:', result.data.heroSettings.title);
+          console.log('Subtitle:', result.data.heroSettings.subtitle);
+          setHeroSettings(result.data.heroSettings);
+        }
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -284,7 +324,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                 {/* Phone Icon */}
                 <a
-                  href="tel:+1234567890"
+                  href="tel:+21622420360"
                   className="group relative text-white hover:text-[#FFC800] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
                   title="Call Us"
                 >
@@ -296,7 +336,7 @@ export default function LandingPage() {
 
                 {/* Facebook */}
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/share/1AXCENKzae/?mibextid=wwXIfr"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative text-white hover:text-[#1877F2] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
@@ -310,7 +350,7 @@ export default function LandingPage() {
 
                 {/* Instagram */}
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/jasmin.locationdevoiture/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative text-white hover:text-[#E4405F] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
@@ -322,17 +362,17 @@ export default function LandingPage() {
                   </svg>
                 </a>
 
-                {/* YouTube */}
+                {/* WhatsApp */}
                 <a
-                  href="https://youtube.com"
+                  href="https://wa.me/21622420360"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative text-white hover:text-[#FF0000] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
-                  title="YouTube"
+                  className="group relative text-white hover:text-[#25D366] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
+                  title="WhatsApp"
                 >
-                  <div className="absolute inset-0 bg-[#FF0000]/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-150"></div>
+                  <div className="absolute inset-0 bg-[#25D366]/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-150"></div>
                   <svg className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                   </svg>
                 </a>
 
@@ -420,39 +460,17 @@ export default function LandingPage() {
         ) : (
           <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-700 to-gray-900" />
         )}
-        <div className="hero-content relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-12 sm:py-16 md:py-20">
+        <div className="hero-content relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-12 sm:py-16 md:py-20" key={i18n.language}>
           <div className="max-w-[1400px] mx-auto text-center md:text-left">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white leading-tight mb-4 sm:mb-6 md:mb-8">
-              {heroSettings?.title || 'Welcome to Jasmin Rent Cars'}
+              {getTranslatedText(heroSettings?.title, 'Welcome to Jasmin Rent Cars')}
             </h1>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white/90 mb-6 sm:mb-8 md:mb-12 max-w-2xl mx-auto md:mx-0 leading-relaxed">
-              {heroSettings?.subtitle || 'Your Premium Car Rental Experience'}
+              {getTranslatedText(heroSettings?.subtitle, 'Your Premium Car Rental Experience')}
             </p>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
-              <button
-                onClick={() => setIsSpinWheelOpen(true)}
-                className="inline-flex items-center justify-center space-x-2 px-4 sm:px-6 md:px-8 lg:px-10 py-3 sm:py-3 md:py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all rounded-sm shadow-lg hover:shadow-xl w-full sm:w-auto"
-              >
-                <span>🎁</span>
-                <span>{t('giftOffer')}</span>
-              </button>
-              <button
-                onClick={() => document.querySelector('#quote-form')?.scrollIntoView({ behavior: 'smooth' })}
-                className="inline-flex items-center justify-center space-x-2 px-4 sm:px-6 md:px-8 lg:px-10 py-3 sm:py-3 md:py-4 bg-[#FFC800] hover:bg-[#E6B500] text-black text-xs sm:text-sm font-bold uppercase tracking-wider transition-all rounded-sm shadow-lg hover:shadow-xl w-full sm:w-auto"
-              >
-                <span>{t('getQuote')}</span>
-                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
           </div>
         </div>
       </section>
-
-    
-
-
 
       {/* Fleet Section */}
       <section id="fleet" className="py-12 sm:py-16 md:py-24 bg-[#0a0a0a]">
@@ -517,13 +535,51 @@ export default function LandingPage() {
          
                 <div className="form-input">
                   <label className="block text-xs sm:text-sm font-bold text-gray-300 mb-2 sm:mb-3 uppercase tracking-wide">{t('pickupDate')}</label>
-                  <input type="date" value={bookingForm.pickupDate} onChange={(e) => setBookingForm({ ...bookingForm, pickupDate: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 md:py-4 border-2 border-gray-700 focus:border-[#FFC800] outline-none text-white bg-[#0a0a0a] text-sm sm:text-base" required />
+                  <input
+                    id="pickup-date-input"
+                    type="date"
+                    value={bookingForm.pickupDate}
+                    onChange={(e) => setBookingForm({ ...bookingForm, pickupDate: e.target.value })}
+                    onClick={(e) => {
+                      const input = e.currentTarget as HTMLInputElement;
+                      try {
+                        if (typeof (input as any).showPicker === 'function') {
+                          (input as any).showPicker();
+                        }
+                      } catch {
+                        // Fallback for browsers that don't support showPicker
+                      }
+                    }}
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 md:py-4 border-2 border-gray-700 focus:border-[#FFC800] outline-none text-white bg-[#0a0a0a] text-sm sm:text-base cursor-pointer"
+                    style={{
+                      colorScheme: 'dark'
+                    }}
+                    required
+                  />
                 </div>
                 <div className="md:col-span-2 form-input">
                   <label className="block text-xs sm:text-sm font-bold text-gray-300 mb-2 sm:mb-3 uppercase tracking-wide">{t('pickupTime')}</label>
-                  <input type="time" value={bookingForm.pickupTime} onChange={(e) => setBookingForm({ ...bookingForm, pickupTime: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 md:py-4 border-2 border-gray-700 focus:border-[#FFC800] outline-none text-white bg-[#0a0a0a] text-sm sm:text-base" required />
+                  <input
+                    id="pickup-time-input"
+                    type="time"
+                    value={bookingForm.pickupTime}
+                    onChange={(e) => setBookingForm({ ...bookingForm, pickupTime: e.target.value })}
+                    onClick={(e) => {
+                      const input = e.currentTarget as HTMLInputElement;
+                      try {
+                        if (typeof (input as any).showPicker === 'function') {
+                          (input as any).showPicker();
+                        }
+                      } catch {
+                        // Fallback for browsers that don't support showPicker
+                      }
+                    }}
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 md:py-4 border-2 border-gray-700 focus:border-[#FFC800] outline-none text-white bg-[#0a0a0a] text-sm sm:text-base cursor-pointer"
+                    style={{
+                      colorScheme: 'dark'
+                    }}
+                    required
+                  />
                 </div>
               </div>
               <button type="submit" className="w-full px-4 sm:px-6 py-3 sm:py-4 md:py-5 bg-[#FFC800] hover:bg-[#E6B500] text-black font-bold text-sm sm:text-base md:text-lg uppercase tracking-wider transition-colors">
@@ -625,7 +681,31 @@ export default function LandingPage() {
             <source src="/back1.mp4" type="video/mp4" />
           </video>
         </div>
-
+  {/* CTA Buttons Section */}
+      <section className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-b from-[#0a0a0a] to-[#000000]">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 justify-center items-center">
+            <button
+              onClick={() => setIsSpinWheelOpen(true)}
+              className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/50 overflow-hidden w-full sm:w-auto"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
+              <span className="relative text-2xl sm:text-3xl md:text-4xl">🎁</span>
+              <span className="relative">{t('giftOffer')}</span>
+            </button>
+            <button
+              onClick={() => document.querySelector('#quote-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-[#FFC800]/50 overflow-hidden w-full sm:w-auto"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
+              <span className="relative">{t('getQuote')}</span>
+              <svg className="relative w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
         {/* Why Choose Us Section */}
         <section id="why-choose" className="relative py-12 sm:py-16 md:py-24 z-10">
           {/* Dark overlay that fades */}

@@ -150,7 +150,7 @@ export default function CarCard({ car, onBook }: CarCardProps) {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-3 sm:pt-4 border-t border-gray-700 gap-3 sm:gap-0">
           <div>
             <span className="text-2xl sm:text-3xl font-bold text-primary-500">
-              ${car.price_per_day}
+              DT {car.price_per_day}
             </span>
             <span className="text-gray-400 text-xs sm:text-sm ml-2">/ {t('perDay')}</span>
           </div>

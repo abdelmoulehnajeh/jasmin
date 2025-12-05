@@ -103,6 +103,29 @@ export const typeDefs = `#graphql
     subtitle: String
   }
 
+  type Gift {
+    id: String!
+    title: String!
+    description: String!
+    emoji: String!
+    discount_percentage: Int!
+    promo_code: String
+    is_active: Boolean!
+    display_order: Int!
+    created_at: String!
+    updated_at: String!
+  }
+
+  input GiftInput {
+    title: String!
+    description: String!
+    emoji: String!
+    discount_percentage: Int!
+    promo_code: String
+    is_active: Boolean
+    display_order: Int
+  }
+
   input SignupInput {
     email: String!
     password: String!
@@ -163,6 +186,8 @@ export const typeDefs = `#graphql
     car(id: String!, language: String): Car
     carAvailability(carId: String!, startDate: String!, endDate: String!): Boolean!
     heroSettings(language: String): HeroSettings
+    gifts(language: String): [Gift]
+    activeGifts(language: String): [Gift]
 
     # Authenticated
     me: User
@@ -174,6 +199,8 @@ export const typeDefs = `#graphql
     allUsers: [User]
     dashboardStats: DashboardStats
     carRatings(carId: String!): [Rating]
+    allGifts: [Gift]
+    gift(id: String!): Gift
   }
 
   type Mutation {
@@ -201,5 +228,11 @@ export const typeDefs = `#graphql
 
     # Admin - Hero Settings
     updateHeroSettings(input: HeroSettingsInput!): HeroSettings!
+
+    # Admin - Gifts
+    createGift(input: GiftInput!): Gift!
+    updateGift(id: String!, input: GiftInput!): Gift!
+    deleteGift(id: String!): Boolean!
+    toggleGiftStatus(id: String!): Gift!
   }
 `;

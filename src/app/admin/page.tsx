@@ -105,13 +105,19 @@ export default function AdminDashboard() {
         {stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
-              { label: 'Voitures', value: stats.totalCars, sublabel: `${stats.availableCars} disponibles`, gradient: 'from-blue-600 to-cyan-600', icon: '🚗' },
-              { label: 'Réservations', value: stats.totalBookings, sublabel: `${stats.activeBookings} actives`, gradient: 'from-green-600 to-emerald-600', icon: '📅' },
-              { label: 'Utilisateurs', value: stats.totalUsers, sublabel: 'Clients total', gradient: 'from-purple-600 to-pink-600', icon: '👥' },
+              { label: 'Voitures', value: stats.totalCars, sublabel: `${stats.availableCars} disponibles`, gradient: 'from-blue-600 to-cyan-600', icon: '🚗', path: '/admin/cars' },
+              { label: 'Réservations', value: stats.totalBookings, sublabel: `${stats.activeBookings} actives`, gradient: 'from-green-600 to-emerald-600', icon: '📅', path: '/admin/bookings' },
+              { label: 'Utilisateurs', value: stats.totalUsers, sublabel: 'Clients total', gradient: 'from-purple-600 to-pink-600', icon: '👥', path: '/admin/users' },
               { label: 'Revenu', value: `$${stats.totalRevenue.toFixed(0)}`, sublabel: 'Total reçu', gradient: 'from-gold-600 to-burgundy-600', icon: '💰' },
             ].map((stat, i) => (
-              <div key={i} className="group">
-                <div className={`bg-gradient-to-br ${stat.gradient} p-4 sm:p-6 rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-300`}>
+              <button
+                key={i}
+                type="button"
+                onClick={() => stat.path && router.push(stat.path)}
+                aria-label={`${stat.label} - ${stat.sublabel}`}
+                className="group text-left"
+              >
+                <div className={`bg-gradient-to-br ${stat.gradient} p-4 sm:p-6 rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-300 ${stat.path ? 'cursor-pointer focus:outline-none focus:ring-4 focus:ring-white/20' : ''}`}>
                   <div className="flex justify-between items-start mb-3 sm:mb-4">
                     <span className="text-3xl sm:text-4xl">{stat.icon}</span>
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center">
@@ -122,32 +128,12 @@ export default function AdminDashboard() {
                   <p className="text-2xl sm:text-4xl font-black text-white mb-1">{stat.value}</p>
                   <p className="text-white/70 text-xs font-semibold">{stat.sublabel}</p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
 
-        {/* Quick Actions */}
-        <div>
-          <h3 className="text-xl sm:text-2xl font-black text-white mb-3 sm:mb-4">ACTIONS RAPIDES</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {[
-              { label: 'Ajouter Voiture', icon: '➕', path: '/admin/cars', color: 'from-blue-600 to-cyan-600' },
-              { label: 'Voir Réservations', icon: '📋', path: '/admin/bookings', color: 'from-green-600 to-emerald-600' },
-              { label: 'Gérer Users', icon: '👥', path: '/admin/users', color: 'from-purple-600 to-pink-600' },
-              { label: 'Paramètres', icon: '⚙️', path: '/admin/settings', color: 'from-gold-600 to-burgundy-600' },
-            ].map((action, i) => (
-              <button
-                key={i}
-                onClick={() => router.push(action.path)}
-                className={`group bg-gradient-to-br ${action.color} p-4 sm:p-6 rounded-2xl transform hover:scale-105 transition-all duration-300 shadow-lg text-left`}
-              >
-                <div className="text-3xl sm:text-5xl mb-2 sm:mb-3 group-hover:scale-110 transition-transform">{action.icon}</div>
-                <p className="text-white font-black text-xs sm:text-base">{action.label}</p>
-              </button>
-            ))}
-          </div>
-        </div>
+   
       </div>
     </AdminLayout>
   );

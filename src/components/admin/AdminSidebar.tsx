@@ -46,6 +46,12 @@ export default function AdminSidebar({ userName = 'Admin', userRole = 'ADMIN' }:
       description: 'Gérer bookings'
     },
     {
+      icon: '🎁',
+      label: 'Cadeaux',
+      path: '/admin/gifts',
+      description: 'Gérer offres'
+    },
+    {
       icon: '👥',
       label: 'Utilisateurs',
       path: '/admin/users',
@@ -101,7 +107,7 @@ export default function AdminSidebar({ userName = 'Admin', userRole = 'ADMIN' }:
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-white font-black text-base sm:text-lg">VELOCITY</h1>
+                  <h1 className="text-white font-black text-base sm:text-lg">JRC</h1>
                   <p className="text-gold-500 text-xs font-bold">ADMIN</p>
                 </div>
               </div>

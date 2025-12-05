@@ -9,23 +9,20 @@ interface SpinWheelModalProps {
 }
 
 interface Prize {
-  id: number;
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
   label: string;
   color: string;
   discount: number;
+  promo_code?: string | null;
 }
 
-const prizes: Prize[] = [
-  { id: 1, label: '5%', color: '#FFC800', discount: 5 },
-  { id: 2, label: '10%', color: '#E6B500', discount: 10 },
-  { id: 3, label: '15%', color: '#FFC800', discount: 15 },
-  { id: 4, label: '20%', color: '#E6B500', discount: 20 },
-  { id: 5, label: '25%', color: '#FFC800', discount: 25 },
-  { id: 6, label: '30%', color: '#E6B500', discount: 30 },
-];
+const WHEEL_COLORS = ['#FFC800', '#E6B500', '#FFD700', '#DAA520', '#FFE44D', '#F4C430'];
 
 export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps) {
-  const { t } = useClientTranslation();
+  const { t, i18n } = useClientTranslation();
   const [step, setStep] = useState<'register' | 'spin' | 'result'>('register');
   const [formData, setFormData] = useState({
     name: '',
@@ -36,7 +33,69 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
   const [rotation, setRotation] = useState(0);
   const [selectedPrize, setSelectedPrize] = useState<Prize | null>(null);
   const [promoCode, setPromoCode] = useState('');
+  const [prizes, setPrizes] = useState<Prize[]>([]);
+  const [loading, setLoading] = useState(true);
   const wheelRef = useRef<HTMLDivElement>(null);
+
+  // Fetch active gifts from backend
+  useEffect(() => {
+    const fetchGifts = async () => {
+      try {
+        const response = await fetch('/api/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: `
+              query {
+                activeGifts(language: "${i18n.language || 'en'}") {
+                  id title description emoji discount_percentage promo_code
+                }
+              }
+            `,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.data?.activeGifts && data.data.activeGifts.length > 0) {
+          const gifts = data.data.activeGifts.map((gift: any, index: number) => ({
+            id: gift.id,
+            title: gift.title,
+            description: gift.description,
+            emoji: gift.emoji,
+            label: `${gift.discount_percentage}%`,
+            color: WHEEL_COLORS[index % WHEEL_COLORS.length],
+            discount: gift.discount_percentage,
+            promo_code: gift.promo_code,
+          }));
+          setPrizes(gifts);
+        } else {
+          // Fallback to default prizes if no gifts in database
+          setPrizes([
+            { id: '1', title: 'Gift 5%', description: '5% OFF', emoji: '🎁', label: '5%', color: '#FFC800', discount: 5 },
+            { id: '2', title: 'Gift 10%', description: '10% OFF', emoji: '💎', label: '10%', color: '#E6B500', discount: 10 },
+            { id: '3', title: 'Gift 15%', description: '15% OFF', emoji: '🎉', label: '15%', color: '#FFD700', discount: 15 },
+            { id: '4', title: 'Gift 20%', description: '20% OFF', emoji: '🍀', label: '20%', color: '#DAA520', discount: 20 },
+            { id: '5', title: 'Gift 25%', description: '25% OFF', emoji: '👑', label: '25%', color: '#FFE44D', discount: 25 },
+            { id: '6', title: 'Gift 30%', description: '30% OFF', emoji: '⭐', label: '30%', color: '#F4C430', discount: 30 },
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch gifts:', error);
+        // Fallback prizes
+        setPrizes([
+          { id: '1', title: 'Gift 5%', description: '5% OFF', emoji: '🎁', label: '5%', color: '#FFC800', discount: 5 },
+          { id: '2', title: 'Gift 10%', description: '10% OFF', emoji: '💎', label: '10%', color: '#E6B500', discount: 10 },
+          { id: '3', title: 'Gift 15%', description: '15% OFF', emoji: '🎉', label: '15%', color: '#FFD700', discount: 15 },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchGifts();
+    }
+  }, [isOpen, i18n.language]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -70,10 +129,15 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
     setStep('spin');
   };
 
-  const generatePromoCode = (discount: number): string => {
+  const generatePromoCode = (prize: Prize): string => {
+    // If the prize has a predefined promo code from admin, use it
+    if (prize.promo_code) {
+      return prize.promo_code;
+    }
+    // Otherwise generate a random one
     const prefix = 'GIFT';
     const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-    return `${prefix}${discount}-${random}`;
+    return `${prefix}${prize.discount}-${random}`;
   };
 
   const spinWheel = () => {
@@ -97,7 +161,7 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
     setTimeout(() => {
       setSpinning(false);
       setSelectedPrize(prize);
-      const code = generatePromoCode(prize.discount);
+      const code = generatePromoCode(prize);
       setPromoCode(code);
       setStep('result');
 
@@ -130,6 +194,18 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
   };
 
   if (!isOpen) return null;
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-4">
+        <div className="relative bg-[#1a1a1a] border-2 border-[#FFC800] rounded-lg p-12 text-center">
+          <div className="text-5xl mb-4 animate-bounce">🎁</div>
+          <p className="text-white font-bold">Loading gifts...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-4">
@@ -212,55 +288,123 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
           {/* Spin Step */}
           {step === 'spin' && (
             <div className="text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6 uppercase tracking-wide">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 uppercase tracking-wide">
                 {t('spinTheWheel')}
               </h2>
 
-              <div className="relative w-full max-w-[280px] sm:max-w-md mx-auto mb-6 sm:mb-8">
+              {/* Show all available gifts */}
+              <div className="mb-6">
+                <p className="text-gray-400 text-sm mb-3">Available Prizes:</p>
+                <div className="flex flex-wrap justify-center gap-2 mb-4">
+                  {prizes.map((prize) => (
+                    <div
+                      key={prize.id}
+                      className="flex items-center gap-1 bg-black/30 border border-gray-700 rounded-lg px-2 py-1"
+                    >
+                      <span className="text-lg">{prize.emoji}</span>
+                      <span className="text-xs text-white font-bold">{prize.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative w-full max-w-[320px] sm:max-w-[400px] mx-auto mb-6 sm:mb-8">
                 {/* Wheel Container */}
-                <div className="relative aspect-square spin-wheel-container">
+                <div className="relative aspect-square">
                   {/* Arrow Pointer */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10">
-                    <div className="w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[30px] border-t-[#FFC800]"></div>
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-3 z-20">
+                    <div className="w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[35px] border-t-[#FFC800] drop-shadow-lg"></div>
                   </div>
 
-                  {/* Wheel */}
-                  <div
+                  {/* SVG Wheel */}
+                  <svg
                     ref={wheelRef}
-                    className="relative w-full h-full rounded-full border-8 border-white shadow-2xl overflow-hidden"
+                    viewBox="0 0 400 400"
+                    className="w-full h-full drop-shadow-2xl"
                     style={{
                       transform: `rotate(${rotation}deg)`,
                       transition: spinning ? 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
                     }}
                   >
+                    {/* Outer border circle */}
+                    <circle cx="200" cy="200" r="198" fill="white" />
+                    <circle cx="200" cy="200" r="190" fill="none" />
+
+                    {/* Prize segments */}
                     {prizes.map((prize, index) => {
-                      const angle = (360 / prizes.length) * index;
+                      const segmentAngle = 360 / prizes.length;
+                      const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
+                      const endAngle = ((index + 1) * segmentAngle - 90) * (Math.PI / 180);
+                      const midAngle = ((index + 0.5) * segmentAngle - 90) * (Math.PI / 180);
+
+                      // Calculate path for the segment
+                      const x1 = 200 + 190 * Math.cos(startAngle);
+                      const y1 = 200 + 190 * Math.sin(startAngle);
+                      const x2 = 200 + 190 * Math.cos(endAngle);
+                      const y2 = 200 + 190 * Math.sin(endAngle);
+
+                      const largeArc = segmentAngle > 180 ? 1 : 0;
+                      const pathData = `M 200 200 L ${x1} ${y1} A 190 190 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+                      // Position for text (70% from center)
+                      const textX = 200 + 130 * Math.cos(midAngle);
+                      const textY = 200 + 130 * Math.sin(midAngle);
+                      const textRotation = (index + 0.5) * segmentAngle;
+
                       return (
-                        <div
-                          key={prize.id}
-                          className="absolute w-full h-full"
-                          style={{
-                            transform: `rotate(${angle}deg)`,
-                            clipPath: `polygon(50% 50%, 100% 0, 100% ${100 / prizes.length}%)`,
-                          }}
-                        >
-                          <div
-                            className="w-full h-full flex items-center justify-end pr-8"
-                            style={{ backgroundColor: prize.color }}
-                          >
-                            <span className="text-2xl font-bold text-black transform rotate-[30deg]">
+                        <g key={prize.id}>
+                          {/* Segment background */}
+                          <path d={pathData} fill={prize.color} />
+
+                          {/* Segment border */}
+                          <path d={pathData} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+
+                          {/* Prize content */}
+                          <g transform={`translate(${textX}, ${textY}) rotate(${textRotation})`}>
+                            {/* Emoji */}
+                            <text
+                              x="0"
+                              y="-15"
+                              textAnchor="middle"
+                              fontSize="32"
+                              style={{ userSelect: 'none' }}
+                            >
+                              {prize.emoji}
+                            </text>
+                            {/* Percentage */}
+                            <text
+                              x="0"
+                              y="15"
+                              textAnchor="middle"
+                              fontSize="20"
+                              fontWeight="900"
+                              fill="white"
+                              stroke="rgba(0,0,0,0.5)"
+                              strokeWidth="1"
+                              style={{ userSelect: 'none' }}
+                            >
                               {prize.label}
-                            </span>
-                          </div>
-                        </div>
+                            </text>
+                          </g>
+                        </g>
                       );
                     })}
 
-                    {/* Center Circle */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-[#1a1a1a] border-4 border-white rounded-full flex items-center justify-center">
-                      <span className="text-2xl">🎁</span>
-                    </div>
-                  </div>
+                    {/* Center circle */}
+                    <circle cx="200" cy="200" r="40" fill="#1a1a1a" stroke="white" strokeWidth="4" />
+
+                    {/* Center emoji */}
+                    <text
+                      x="200"
+                      y="200"
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontSize="32"
+                      style={{ userSelect: 'none' }}
+                    >
+                      🎁
+                    </text>
+                  </svg>
                 </div>
               </div>
 
@@ -279,10 +423,13 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
           {/* Result Step */}
           {step === 'result' && selectedPrize && (
             <div className="text-center">
-              <div className="text-6xl sm:text-7xl mb-4 animate-bounce">🎉</div>
+              <div className="text-6xl sm:text-7xl mb-4 animate-bounce">{selectedPrize.emoji}</div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 uppercase tracking-wide">
                 {t('congratulations')}!
               </h2>
+              <p className="text-gray-300 mb-2 text-xl font-bold text-[#FFC800]">
+                {selectedPrize.title}
+              </p>
               <p className="text-gray-300 mb-6 text-lg">
                 {t('youWon')} <span className="text-[#FFC800] font-bold text-2xl">{selectedPrize.discount}%</span> {t('discount')}!
               </p>

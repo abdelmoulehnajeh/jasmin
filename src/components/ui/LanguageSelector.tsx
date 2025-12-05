@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 const languages = [
@@ -21,16 +22,22 @@ export default function LanguageSelector() {
 
   const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
 
-  // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
     return (
-      <div className="relative">
-        <button className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
-          <span className="text-base sm:text-xl md:text-2xl">🇬🇧</span>
-          <span className="text-white hidden md:inline text-xs sm:text-sm">English</span>
-          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white transition-transform" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-            <path d="M19 9l-7 7-7-7"></path>
-          </svg>
+      <div style={{ position: 'relative' }}>
+        <button style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '10px 16px',
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: '8px',
+          color: 'white',
+          cursor: 'pointer'
+        }}>
+          <span style={{ fontSize: '24px' }}>🇬🇧</span>
+          <span style={{ fontSize: '14px', fontWeight: 'bold' }}>EN</span>
         </button>
       </div>
     );
@@ -39,13 +46,9 @@ export default function LanguageSelector() {
   const changeLanguage = (code: string) => {
     i18n.changeLanguage(code);
     setIsOpen(false);
-
-    // Store language preference
     if (typeof window !== 'undefined') {
       localStorage.setItem('language', code);
     }
-
-    // Update document direction for RTL languages
     if (code === 'ar') {
       document.documentElement.dir = 'rtl';
     } else {
@@ -54,73 +57,199 @@ export default function LanguageSelector() {
   };
 
   return (
-    <>
-      <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-        >
-          <span className="text-base sm:text-xl md:text-2xl">{currentLanguage.flag}</span>
-          <span className="text-white hidden md:inline text-xs sm:text-sm">{currentLanguage.name}</span>
-          <svg
-            className={`w-3 h-3 sm:w-4 sm:h-4 text-white transition-transform ${isOpen ? 'rotate-180' : ''}`}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M19 9l-7 7-7-7"></path>
-          </svg>
-        </button>
-      </div>
+    <div style={{ position: 'relative', zIndex: 50 }}>
+      {/* Button */}
+      <button
+        onClick={() => {
+          console.log('Button clicked, isOpen will be:', !isOpen);
+          setIsOpen(!isOpen);
+        }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '10px 16px',
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: '8px',
+          color: 'white',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: 'bold'
+        }}
+      >
+        <span style={{ fontSize: '24px' }}>{currentLanguage.flag}</span>
+        <span>{currentLanguage.code.toUpperCase()}</span>
+        <span style={{
+          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 0.3s'
+        }}>▼</span>
+      </button>
 
-      {/* Portal-style dropdown - rendered outside parent container */}
-      {isOpen && (
+      {/* Dropdown - Using Portal to render at document body level */}
+      {mounted && isOpen && typeof document !== 'undefined' && createPortal(
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-[60]"
-            onClick={() => setIsOpen(false)}
-          ></div>
-
-          {/* Dropdown - positioned fixed to escape parent overflow */}
-          <div
-            className="fixed z-[70] w-48 bg-gray-800 rounded-lg shadow-2xl border border-gray-700"
+            onClick={() => {
+              console.log('Backdrop clicked, closing dropdown');
+              setIsOpen(false);
+            }}
             style={{
-              top: typeof window !== 'undefined' ? `${window.scrollY + 60}px` : '60px',
-              right: '1rem'
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 999999,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)'
+            }}
+          />
+
+          {/* Dropdown Menu */}
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '90vw',
+              maxWidth: '400px',
+              backgroundColor: '#ffffff',
+              border: '8px solid #FFC800',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              zIndex: 9999999,
+              boxShadow: '0 40px 80px rgba(0, 0, 0, 0.9)'
             }}
           >
-            {languages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => changeLanguage(lang.code)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-700 transition-colors ${
-                  lang.code === currentLanguage.code ? 'bg-gray-700' : ''
-                } first:rounded-t-lg last:rounded-b-lg`}
-              >
-                <span className="text-2xl">{lang.flag}</span>
-                <span className="text-white">{lang.name}</span>
-                {lang.code === currentLanguage.code && (
-                  <svg
-                    className="w-5 h-5 text-[#FFC800] ml-auto"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
-                )}
-              </button>
-            ))}
+            {/* Header */}
+            <div style={{
+              backgroundColor: '#FFC800',
+              padding: '16px',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                color: '#000000',
+                fontSize: '16px',
+                fontWeight: '900',
+                textTransform: 'uppercase',
+                letterSpacing: '2px'
+              }}>
+                🌍 SELECT LANGUAGE
+              </div>
+            </div>
+
+            {/* English */}
+            <button
+              onClick={() => changeLanguage('en')}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '20px',
+                backgroundColor: currentLanguage.code === 'en' ? '#FFC800' : '#000000',
+                color: currentLanguage.code === 'en' ? '#000000' : '#FFFFFF',
+                border: 'none',
+                borderBottom: '2px solid rgba(255, 200, 0, 0.3)',
+                cursor: 'pointer',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                textAlign: 'left'
+              }}
+            >
+              <span style={{ fontSize: '40px' }}>🇬🇧</span>
+              <div style={{ flex: 1 }}>
+                <div>English</div>
+                <div style={{ fontSize: '12px', opacity: 0.7 }}>EN</div>
+              </div>
+              {currentLanguage.code === 'en' && <span style={{ fontSize: '28px' }}>✓</span>}
+            </button>
+
+            {/* French */}
+            <button
+              onClick={() => changeLanguage('fr')}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '20px',
+                backgroundColor: currentLanguage.code === 'fr' ? '#FFC800' : '#000000',
+                color: currentLanguage.code === 'fr' ? '#000000' : '#FFFFFF',
+                border: 'none',
+                borderBottom: '2px solid rgba(255, 200, 0, 0.3)',
+                cursor: 'pointer',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                textAlign: 'left'
+              }}
+            >
+              <span style={{ fontSize: '40px' }}>🇫🇷</span>
+              <div style={{ flex: 1 }}>
+                <div>Français</div>
+                <div style={{ fontSize: '12px', opacity: 0.7 }}>FR</div>
+              </div>
+              {currentLanguage.code === 'fr' && <span style={{ fontSize: '28px' }}>✓</span>}
+            </button>
+
+            {/* Arabic */}
+            <button
+              onClick={() => changeLanguage('ar')}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '20px',
+                backgroundColor: currentLanguage.code === 'ar' ? '#FFC800' : '#000000',
+                color: currentLanguage.code === 'ar' ? '#000000' : '#FFFFFF',
+                border: 'none',
+                borderBottom: '2px solid rgba(255, 200, 0, 0.3)',
+                cursor: 'pointer',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                textAlign: 'left'
+              }}
+            >
+              <span style={{ fontSize: '40px' }}>🇸🇦</span>
+              <div style={{ flex: 1 }}>
+                <div>العربية</div>
+                <div style={{ fontSize: '12px', opacity: 0.7 }}>AR</div>
+              </div>
+              {currentLanguage.code === 'ar' && <span style={{ fontSize: '28px' }}>✓</span>}
+            </button>
+
+            {/* Italian */}
+            <button
+              onClick={() => changeLanguage('it')}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '20px',
+                backgroundColor: currentLanguage.code === 'it' ? '#FFC800' : '#000000',
+                color: currentLanguage.code === 'it' ? '#000000' : '#FFFFFF',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                textAlign: 'left'
+              }}
+            >
+              <span style={{ fontSize: '40px' }}>🇮🇹</span>
+              <div style={{ flex: 1 }}>
+                <div>Italiano</div>
+                <div style={{ fontSize: '12px', opacity: 0.7 }}>IT</div>
+              </div>
+              {currentLanguage.code === 'it' && <span style={{ fontSize: '28px' }}>✓</span>}
+            </button>
           </div>
-        </>
+        </>,
+        document.body
       )}
-    </>
+    </div>
   );
 }

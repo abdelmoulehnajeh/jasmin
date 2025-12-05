@@ -224,7 +224,7 @@ export const resolvers = {
         query('SELECT COUNT(*) as count FROM users WHERE role = $1', ['USER']),
         query('SELECT COALESCE(SUM(total_price), 0) as total FROM bookings WHERE payment_status = $1', ['PAID']),
         query('SELECT COUNT(*) as count FROM bookings WHERE status = $1', ['ACTIVE']),
-        query('SELECT SUM(available_count) as count FROM cars WHERE status = $1', ['AVAILABLE']),
+        query('SELECT COUNT(*) as count FROM cars WHERE status = $1', ['AVAILABLE']),
       ]);
 
       return {
@@ -281,10 +281,98 @@ export const resolvers = {
         video_url: hero.video_url || '',
         mobile_image_url: hero.mobile_image_url,
         desktop_image_url: hero.desktop_image_url,
-        title: getLocalizedText(hero.title, language),
-        subtitle: getLocalizedText(hero.subtitle, language),
+        // Return the full JSON string so frontend can handle language switching
+        title: typeof hero.title === 'string' ? hero.title : JSON.stringify(hero.title),
+        subtitle: typeof hero.subtitle === 'string' ? hero.subtitle : JSON.stringify(hero.subtitle),
         is_active: hero.is_active,
         created_at: hero.created_at,
+      };
+    },
+
+    // Gift queries
+    gifts: async (_: any, { language = 'en' }: any) => {
+      const result = await query(
+        'SELECT * FROM gifts ORDER BY display_order ASC, created_at DESC'
+      );
+
+      return result.rows.map(gift => ({
+        id: String(gift.id),
+        title: getLocalizedText(gift.title, language),
+        description: getLocalizedText(gift.description, language),
+        emoji: gift.emoji,
+        discount_percentage: gift.discount_percentage,
+        promo_code: gift.promo_code,
+        is_active: gift.is_active,
+        display_order: gift.display_order,
+        created_at: gift.created_at,
+        updated_at: gift.updated_at,
+      }));
+    },
+
+    activeGifts: async (_: any, { language = 'en' }: any) => {
+      const result = await query(
+        'SELECT * FROM gifts WHERE is_active = true ORDER BY display_order ASC, created_at DESC'
+      );
+
+      return result.rows.map(gift => ({
+        id: String(gift.id),
+        title: getLocalizedText(gift.title, language),
+        description: getLocalizedText(gift.description, language),
+        emoji: gift.emoji,
+        discount_percentage: gift.discount_percentage,
+        promo_code: gift.promo_code,
+        is_active: gift.is_active,
+        display_order: gift.display_order,
+        created_at: gift.created_at,
+        updated_at: gift.updated_at,
+      }));
+    },
+
+    // Admin gift queries
+    allGifts: async (_: any, __: any, context: any) => {
+      if (!context.user || context.user.role !== 'ADMIN') {
+        throw new Error('Admin access required');
+      }
+
+      const result = await query(
+        'SELECT * FROM gifts ORDER BY display_order ASC, created_at DESC'
+      );
+
+      return result.rows.map(gift => ({
+        id: String(gift.id),
+        title: typeof gift.title === 'string' ? gift.title : JSON.stringify(gift.title),
+        description: typeof gift.description === 'string' ? gift.description : JSON.stringify(gift.description),
+        emoji: gift.emoji,
+        discount_percentage: gift.discount_percentage,
+        promo_code: gift.promo_code,
+        is_active: gift.is_active,
+        display_order: gift.display_order,
+        created_at: gift.created_at,
+        updated_at: gift.updated_at,
+      }));
+    },
+
+    gift: async (_: any, { id }: any, context: any) => {
+      if (!context.user || context.user.role !== 'ADMIN') {
+        throw new Error('Admin access required');
+      }
+
+      const result = await query('SELECT * FROM gifts WHERE id = $1', [id]);
+
+      if (result.rows.length === 0) throw new Error('Gift not found');
+
+      const gift = result.rows[0];
+      return {
+        id: String(gift.id),
+        title: typeof gift.title === 'string' ? gift.title : JSON.stringify(gift.title),
+        description: typeof gift.description === 'string' ? gift.description : JSON.stringify(gift.description),
+        emoji: gift.emoji,
+        discount_percentage: gift.discount_percentage,
+        promo_code: gift.promo_code,
+        is_active: gift.is_active,
+        display_order: gift.display_order,
+        created_at: gift.created_at,
+        updated_at: gift.updated_at,
       };
     },
   },
@@ -640,6 +728,161 @@ export const resolvers = {
         subtitle: getLocalizedText(hero.subtitle, 'en'),
         is_active: hero.is_active,
         created_at: hero.created_at,
+      };
+    },
+
+    // Gift mutations
+    createGift: async (_: any, { input }: any, context: any) => {
+      if (!context.user || context.user.role !== UserRole.ADMIN) {
+        throw new Error('Not authorized');
+      }
+
+      const { title, description, emoji, discount_percentage, promo_code, is_active = true, display_order = 0 } = input;
+
+      // Normalize title/description to JSON object format
+      const normalizeTextField = (field: any) => {
+        if (!field) return { en: '', fr: '', ar: '', it: '' };
+        if (typeof field === 'string') {
+          try {
+            return JSON.parse(field);
+          } catch {
+            return { en: field, fr: field, ar: field, it: field };
+          }
+        }
+        return field;
+      };
+
+      const titleObj = normalizeTextField(title);
+      const descriptionObj = normalizeTextField(description);
+
+      const result = await query(
+        `INSERT INTO gifts (title, description, emoji, discount_percentage, promo_code, is_active, display_order, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         RETURNING *`,
+        [
+          JSON.stringify(titleObj),
+          JSON.stringify(descriptionObj),
+          emoji,
+          discount_percentage,
+          promo_code || null,
+          is_active,
+          display_order,
+          context.user.userId
+        ]
+      );
+
+      const gift = result.rows[0];
+      return {
+        id: String(gift.id),
+        title: typeof gift.title === 'string' ? gift.title : JSON.stringify(gift.title),
+        description: typeof gift.description === 'string' ? gift.description : JSON.stringify(gift.description),
+        emoji: gift.emoji,
+        discount_percentage: gift.discount_percentage,
+        promo_code: gift.promo_code,
+        is_active: gift.is_active,
+        display_order: gift.display_order,
+        created_at: gift.created_at,
+        updated_at: gift.updated_at,
+      };
+    },
+
+    updateGift: async (_: any, { id, input }: any, context: any) => {
+      if (!context.user || context.user.role !== UserRole.ADMIN) {
+        throw new Error('Not authorized');
+      }
+
+      const { title, description, emoji, discount_percentage, promo_code, is_active, display_order } = input;
+
+      // Normalize title/description to JSON object format
+      const normalizeTextField = (field: any) => {
+        if (!field) return { en: '', fr: '', ar: '', it: '' };
+        if (typeof field === 'string') {
+          try {
+            return JSON.parse(field);
+          } catch {
+            return { en: field, fr: field, ar: field, it: field };
+          }
+        }
+        return field;
+      };
+
+      const titleObj = normalizeTextField(title);
+      const descriptionObj = normalizeTextField(description);
+
+      const result = await query(
+        `UPDATE gifts
+         SET title = $1, description = $2, emoji = $3, discount_percentage = $4,
+             promo_code = $5, is_active = $6, display_order = $7, updated_at = NOW()
+         WHERE id = $8
+         RETURNING *`,
+        [
+          JSON.stringify(titleObj),
+          JSON.stringify(descriptionObj),
+          emoji,
+          discount_percentage,
+          promo_code || null,
+          is_active !== undefined ? is_active : true,
+          display_order !== undefined ? display_order : 0,
+          id
+        ]
+      );
+
+      if (result.rows.length === 0) throw new Error('Gift not found');
+
+      const gift = result.rows[0];
+      return {
+        id: String(gift.id),
+        title: typeof gift.title === 'string' ? gift.title : JSON.stringify(gift.title),
+        description: typeof gift.description === 'string' ? gift.description : JSON.stringify(gift.description),
+        emoji: gift.emoji,
+        discount_percentage: gift.discount_percentage,
+        promo_code: gift.promo_code,
+        is_active: gift.is_active,
+        display_order: gift.display_order,
+        created_at: gift.created_at,
+        updated_at: gift.updated_at,
+      };
+    },
+
+    deleteGift: async (_: any, { id }: any, context: any) => {
+      if (!context.user || context.user.role !== UserRole.ADMIN) {
+        throw new Error('Not authorized');
+      }
+
+      const result = await query('DELETE FROM gifts WHERE id = $1 RETURNING id', [id]);
+
+      if (result.rows.length === 0) throw new Error('Gift not found');
+
+      return true;
+    },
+
+    toggleGiftStatus: async (_: any, { id }: any, context: any) => {
+      if (!context.user || context.user.role !== UserRole.ADMIN) {
+        throw new Error('Not authorized');
+      }
+
+      const result = await query(
+        `UPDATE gifts
+         SET is_active = NOT is_active, updated_at = NOW()
+         WHERE id = $1
+         RETURNING *`,
+        [id]
+      );
+
+      if (result.rows.length === 0) throw new Error('Gift not found');
+
+      const gift = result.rows[0];
+      return {
+        id: String(gift.id),
+        title: typeof gift.title === 'string' ? gift.title : JSON.stringify(gift.title),
+        description: typeof gift.description === 'string' ? gift.description : JSON.stringify(gift.description),
+        emoji: gift.emoji,
+        discount_percentage: gift.discount_percentage,
+        promo_code: gift.promo_code,
+        is_active: gift.is_active,
+        display_order: gift.display_order,
+        created_at: gift.created_at,
+        updated_at: gift.updated_at,
       };
     },
   },

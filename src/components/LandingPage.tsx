@@ -132,7 +132,7 @@ export default function LandingPage({ cars }: LandingPageProps) {
                 </svg>
               </div>
               <div>
-                <h1 className="text-lg sm:text-2xl font-black text-white tracking-wider">VELOCITY</h1>
+                <h1 className="text-lg sm:text-2xl font-black text-white tracking-wider">JRC</h1>
                 <p className="text-[8px] sm:text-xs text-gold-500 tracking-widest hidden sm:block">{t('heroSubtitle')}</p>
               </div>
             </div>
@@ -309,9 +309,9 @@ export default function LandingPage({ cars }: LandingPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-gold-500 to-burgundy-600 rounded-lg" />
-            <span className="text-white font-black text-xl sm:text-2xl tracking-wider">VELOCITY</span>
+            <span className="text-white font-black text-xl sm:text-2xl tracking-wider">JRC</span>
           </div>
-          <p className="text-gray-500 text-xs sm:text-base">&copy; 2024 Velocity Motors. {t('heroSubtitle')}</p>
+          <p className="text-gray-500 text-xs sm:text-base">&copy; 2024 JRC Motors. {t('heroSubtitle')}</p>
         </div>
       </footer>
 
