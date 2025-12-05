@@ -35,7 +35,7 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
   const [promoCode, setPromoCode] = useState('');
   const [prizes, setPrizes] = useState<Prize[]>([]);
   const [loading, setLoading] = useState(true);
-  const wheelRef = useRef<HTMLDivElement>(null);
+  const wheelRef = useRef<SVGSVGElement>(null);
 
   // Fetch active gifts from backend
   useEffect(() => {
