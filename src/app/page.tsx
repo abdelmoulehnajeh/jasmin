@@ -26,7 +26,7 @@ export default function LandingPage() {
   const [cars, setCars] = useState<Car[]>([]);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<ServiceType>('marriage');
+  const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
   const [loading, setLoading] = useState(true);
   const [heroSettings, setHeroSettings] = useState<HeroSettings | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,11 +54,11 @@ export default function LandingPage() {
       if (typeof translations === 'object' && translations !== null) {
         // Try current language, then English, then Italian, then French, then Arabic, then fallback
         const translated = translations[i18n.language] ||
-               translations['en'] ||
-               translations['it'] ||
-               translations['fr'] ||
-               translations['ar'] ||
-               fallback;
+          translations['en'] ||
+          translations['it'] ||
+          translations['fr'] ||
+          translations['ar'] ||
+          fallback;
 
         console.log(`Translation for ${i18n.language}:`, translated, 'from:', translations);
         return translated;
@@ -229,7 +229,7 @@ export default function LandingPage() {
     fetchData();
   }, [i18n.language]);
 
-  const filteredCars = cars.filter(car => car.service_type === selectedService);
+  const filteredCars = selectedService ? cars.filter(car => car.service_type === selectedService) : [];
 
   const handleCarClick = (car: Car) => {
     setSelectedCar(car);
@@ -245,11 +245,10 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation - Premium Design */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${
-        scrolled
-          ? 'bg-[#0a0a0a]/98 backdrop-blur-xl shadow-2xl'
-          : 'bg-gradient-to-b from-black/80 via-black/50 to-transparent'
-      }`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled
+        ? 'bg-[#0a0a0a]/98 backdrop-blur-xl shadow-2xl'
+        : 'bg-gradient-to-b from-black/80 via-black/50 to-transparent'
+        }`}>
         {/* Main Navigation Container */}
         <div className="max-w-[2000px] mx-auto">
           {/* Primary Bar - Logo, Language, CTA */}
@@ -264,9 +263,8 @@ export default function LandingPage() {
                   alt="Jasmin Rent Cars"
                   width={900}
                   height={900}
-                  className={`relative w-auto object-contain transition-all duration-500 ease-out transform group-hover:scale-105 ${
-                    scrolled ? 'h-14 sm:h-16 md:h-20' : 'h-16 sm:h-20 md:h-24 lg:h-28'
-                  }`}
+                  className={`relative w-auto object-contain transition-all duration-500 ease-out transform group-hover:scale-105 ${scrolled ? 'h-14 sm:h-16 md:h-20' : 'h-16 sm:h-20 md:h-24 lg:h-28'
+                    }`}
                   priority
                 />
               </a>
@@ -296,13 +294,11 @@ export default function LandingPage() {
           </div>
 
           {/* Secondary Bar - Menu & Social with Separator */}
-          <div className={`relative border-t transition-all duration-500 ${
-            scrolled ? 'border-[#FFC800]/20' : 'border-white/10'
-          }`}>
+          <div className={`relative border-t transition-all duration-500 ${scrolled ? 'border-[#FFC800]/20' : 'border-white/10'
+            }`}>
             {/* Animated gradient line */}
-            <div className={`absolute top-0 left-0 h-[1px] bg-gradient-to-r from-transparent via-[#FFC800] to-transparent transition-all duration-500 ${
-              scrolled ? 'w-full opacity-100' : 'w-0 opacity-0'
-            }`}></div>
+            <div className={`absolute top-0 left-0 h-[1px] bg-gradient-to-r from-transparent via-[#FFC800] to-transparent transition-all duration-500 ${scrolled ? 'w-full opacity-100' : 'w-0 opacity-0'
+              }`}></div>
 
             <div className="flex items-center justify-between px-4 sm:px-6 md:px-10 lg:px-16 py-3 sm:py-4 md:py-5">
 
@@ -317,20 +313,20 @@ export default function LandingPage() {
                   </svg>
                   <div className="absolute inset-0 bg-[#FFC800]/20 rounded-full blur-lg scale-0 group-hover:scale-150 transition-transform duration-500"></div>
                 </div>
-                <span className="text-sm sm:text-base md:text-lg font-bold uppercase tracking-widest">{t('menu')}</span>
+                <span className="text-[10px] sm:text-base md:text-lg font-bold uppercase tracking-widest">{t('menu')}</span>
               </button>
 
               {/* Social Media Icons with Premium Animation */}
-              <div className="flex items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+              <div className="flex items-center gap-5 sm:gap-4 md:gap-5 lg:gap-6">
                 {/* Phone Icon */}
                 <a
                   href="tel:+21622420360"
-                  className="group relative text-white hover:text-[#FFC800] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
+                  className="group relative text-[#FFC800] sm:text-white hover:text-[#FFC800] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 p-2"
                   title="Call Us"
                 >
                   <div className="absolute inset-0 bg-[#FFC800]/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-150"></div>
-                  <svg className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                  <svg className="relative w-9 h-9 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z" />
                   </svg>
                 </a>
 
@@ -339,12 +335,12 @@ export default function LandingPage() {
                   href="https://www.facebook.com/share/1AXCENKzae/?mibextid=wwXIfr"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative text-white hover:text-[#1877F2] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
+                  className="group relative text-[#1877F2] sm:text-white hover:text-[#1877F2] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 p-2"
                   title="Facebook"
                 >
                   <div className="absolute inset-0 bg-[#1877F2]/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-150"></div>
-                  <svg className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  <svg className="relative w-9 h-9 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 </a>
 
@@ -353,12 +349,12 @@ export default function LandingPage() {
                   href="https://www.instagram.com/jasmin.locationdevoiture/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative text-white hover:text-[#E4405F] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
+                  className="group relative text-[#E4405F] sm:text-white hover:text-[#E4405F] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 p-2"
                   title="Instagram"
                 >
                   <div className="absolute inset-0 bg-gradient-to-tr from-[#F58529] via-[#E4405F] to-[#C13584] rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-150"></div>
-                  <svg className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  <svg className="relative w-9 h-9 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                   </svg>
                 </a>
 
@@ -367,21 +363,21 @@ export default function LandingPage() {
                   href="https://wa.me/21622420360"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative text-white hover:text-[#25D366] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
+                  className="group relative text-[#25D366] sm:text-white hover:text-[#25D366] transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 p-2"
                   title="WhatsApp"
                 >
                   <div className="absolute inset-0 bg-[#25D366]/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-150"></div>
-                  <svg className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  <svg className="relative w-9 h-9 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                   </svg>
                 </a>
 
                 {/* Sign In with Divider */}
                 <div className="flex items-center gap-2 sm:gap-3 md:gap-4 ml-1 sm:ml-2 md:ml-3">
-                  <div className="h-5 sm:h-6 md:h-8 w-[1px] bg-gradient-to-b from-transparent via-white/30 to-transparent"></div>
+                  <div className="h-8 sm:h-6 md:h-8 w-[1px] bg-gradient-to-b from-transparent via-white/30 to-transparent"></div>
                   <a
                     href="/login"
-                    className="group relative text-xs sm:text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest text-white hover:text-[#FFC800] transition-all duration-300 transform hover:scale-105"
+                    className="group relative text-[10px] sm:text-sm md:text-base lg:text-lg font-bold uppercase tracking-widest text-white hover:text-[#FFC800] transition-all duration-300 transform hover:scale-105"
                   >
                     <span className="relative">
                       {t('signIn')}
@@ -471,14 +467,67 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
+      {/* Services Section */}
+      <section id="services" className="py-12 sm:py-16 md:py-24 lg:py-32 bg-[#0a0a0a]">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('ourServices')}</h2>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto">{t('premiumLuxuryTransport')}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+            {[
+              { type: 'marriage', icon: '💍', image: '/mariage.png', title: t('wedding'), desc: t('weddingServiceDesc'), gradient: 'from-pink-900/20 to-purple-900/20' },
+              { type: 'transfer', icon: '✈️', image: '/transfert.png', title: t('transferTitle'), desc: t('transferServiceDesc'), gradient: 'from-blue-900/20 to-cyan-900/20' }
+            ].map((service) => (
+              <div key={service.type}
+                onClick={() => { setSelectedService(service.type as ServiceType); document.querySelector('#fleet')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="service-card group cursor-pointer bg-[#1a1a1a] border border-gray-800 shadow-2xl hover:shadow-[0_0_40px_rgba(255,200,0,0.3)] transition-all duration-500 overflow-hidden"
+              >
+                <div className={`relative h-40 sm:h-52 md:h-64 lg:h-80 bg-gradient-to-br ${service.gradient} overflow-hidden border-b border-gray-800`}>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/0 transition-all duration-500">
+                    {/* @ts-ignore */}
+                    {service.image ? (
+                      <div className="relative w-full h-full transform group-hover:scale-110 transition-transform duration-700">
+                        <Image
+                          src={service.image}
+                          alt={service.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-[60px] sm:text-[80px] md:text-[100px] lg:text-[140px] transform group-hover:scale-125 transition-transform duration-700">{service.icon}</div>
+                    )}
+                  </div>
+                </div>
+                <div className="p-4 sm:p-5 md:p-6 lg:p-10">
+                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 sm:mb-3 md:mb-4">{service.title}</h3>
+                  <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4">{service.desc}</p>
+                  <div className="flex items-center text-white font-bold text-xs sm:text-sm md:text-base group-hover:text-[#FFC800] transition-colors">
+                    {t('learnMore')}
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* Fleet Section */}
       <section id="fleet" className="py-12 sm:py-16 md:py-24 bg-[#0a0a0a]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12 md:mb-16">
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('ourPremiumFleet')}</h2>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 mb-4 sm:mb-6 md:mb-10">
-              {filteredCars.length} {t('luxuryVehiclesFor')} {selectedService === 'marriage' ? t('weddingsSpecialEvents') : t('airportLocationTransfers')}
+              {selectedService ? (
+                <>
+                  {filteredCars.length} {t('luxuryVehiclesFor')} {selectedService === 'marriage' ? t('weddingsSpecialEvents') : t('airportLocationTransfers')}
+                </>
+              ) : (
+                t('selectServiceToViewFleet') || "Select a service to view our fleet"
+              )}
             </p>
             <div className="inline-flex bg-[#1a1a1a] shadow-lg p-1 sm:p-2 border border-gray-800">
               {[{ type: 'marriage', icon: '💍', label: t('wedding') }, { type: 'transfer', icon: '✈️', label: t('transferTitle') }].map((btn) => (
@@ -503,6 +552,14 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+          ) : !selectedService ? (
+            <div className="text-center py-12 sm:py-20 md:py-32 bg-[#1a1a1a] shadow-lg border border-gray-800">
+              <div className="text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6 md:mb-8">👆</div>
+              <h3 className="text-lg sm:text-xl md:text-3xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('chooseService')}</h3>
+              <p className="text-gray-300 text-xs sm:text-sm md:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+                {t('selectServiceDesc') || "Please select a service above to view available vehicles."}
+              </p>
+            </div>
           ) : (
             <div className="text-center py-12 sm:py-20 md:py-32 bg-[#1a1a1a] shadow-lg border border-gray-800">
               <div className="text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6 md:mb-8">🚗</div>
@@ -514,7 +571,7 @@ export default function LandingPage() {
           )}
         </div>
       </section>
-  {/* Quote Form Section */}
+      {/* Quote Form Section */}
       <section id="quote-form" className="py-12 sm:py-16 md:py-20 bg-[#0a0a0a]">
         <div className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-[#1a1a1a] p-4 sm:p-6 md:p-8 lg:p-10 shadow-2xl border border-gray-800">
@@ -532,7 +589,7 @@ export default function LandingPage() {
                     <option value="transfer">{t('airportLocationTransfer')}</option>
                   </select>
                 </div>
-         
+
                 <div className="form-input">
                   <label className="block text-xs sm:text-sm font-bold text-gray-300 mb-2 sm:mb-3 uppercase tracking-wide">{t('pickupDate')}</label>
                   <input
@@ -590,42 +647,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-            {/* Services Section */}
-      <section id="services" className="py-12 sm:py-16 md:py-24 lg:py-32 bg-[#0a0a0a]">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('ourServices')}</h2>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto">{t('premiumLuxuryTransport')}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-            {[
-              { type: 'marriage', icon: '💍', title: t('wedding'), desc: t('weddingServiceDesc'), gradient: 'from-pink-900/20 to-purple-900/20' },
-              { type: 'transfer', icon: '✈️', title: t('transferTitle'), desc: t('transferServiceDesc'), gradient: 'from-blue-900/20 to-cyan-900/20' }
-            ].map((service) => (
-              <div key={service.type}
-                onClick={() => { setSelectedService(service.type as ServiceType); document.querySelector('#fleet')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="service-card group cursor-pointer bg-[#1a1a1a] border border-gray-800 shadow-2xl hover:shadow-[0_0_40px_rgba(255,200,0,0.3)] transition-all duration-500 overflow-hidden"
-              >
-                <div className={`relative h-40 sm:h-52 md:h-64 lg:h-80 bg-gradient-to-br ${service.gradient} overflow-hidden border-b border-gray-800`}>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/0 transition-all duration-500">
-                    <div className="text-[60px] sm:text-[80px] md:text-[100px] lg:text-[140px] transform group-hover:scale-125 transition-transform duration-700">{service.icon}</div>
-                  </div>
-                </div>
-                <div className="p-4 sm:p-5 md:p-6 lg:p-10">
-                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 sm:mb-3 md:mb-4">{service.title}</h3>
-                  <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4">{service.desc}</p>
-                  <div className="flex items-center text-white font-bold text-xs sm:text-sm md:text-base group-hover:text-[#FFC800] transition-colors">
-                    {t('learnMore')}
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
       {/* Video Section - Airport Transfers */}
       <section className="relative min-h-[50vh] sm:min-h-[60vh] md:min-h-screen flex items-center overflow-hidden">
         {heroSettings?.video_url ? (
@@ -671,46 +693,46 @@ export default function LandingPage() {
       <div className="relative">
         {/* Single Full Video Background for all 3 sections */}
         <div className="absolute inset-0 z-0">
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
             className="w-full h-full object-cover"
           >
             <source src="/back1.mp4" type="video/mp4" />
           </video>
         </div>
-  {/* CTA Buttons Section */}
-      <section className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-b from-[#0a0a0a] to-[#000000]">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 justify-center items-center">
-            <button
-              onClick={() => setIsSpinWheelOpen(true)}
-              className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/50 overflow-hidden w-full sm:w-auto"
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
-              <span className="relative text-2xl sm:text-3xl md:text-4xl">🎁</span>
-              <span className="relative">{t('giftOffer')}</span>
-            </button>
-            <button
-              onClick={() => document.querySelector('#quote-form')?.scrollIntoView({ behavior: 'smooth' })}
-              className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-[#FFC800]/50 overflow-hidden w-full sm:w-auto"
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
-              <span className="relative">{t('getQuote')}</span>
-              <svg className="relative w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+        {/* CTA Buttons Section */}
+        <section className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-b from-[#0a0a0a] to-[#000000]">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 justify-center items-center">
+              <button
+                onClick={() => setIsSpinWheelOpen(true)}
+                className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/50 overflow-hidden w-full sm:w-auto"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
+                <span className="relative text-2xl sm:text-3xl md:text-4xl">🎁</span>
+                <span className="relative">{t('giftOffer')}</span>
+              </button>
+              <button
+                onClick={() => document.querySelector('#quote-form')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-[#FFC800]/50 overflow-hidden w-full sm:w-auto"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
+                <span className="relative">{t('getQuote')}</span>
+                <svg className="relative w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
         {/* Why Choose Us Section */}
         <section id="why-choose" className="relative py-12 sm:py-16 md:py-24 z-10">
           {/* Dark overlay that fades */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-black/70 to-black/50 z-0" />
-          
+
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-8 sm:mb-12 md:mb-16 lg:mb-20">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('whyChooseJasmin')}</h2>
@@ -757,7 +779,7 @@ export default function LandingPage() {
         <footer className="relative text-white py-8 sm:py-10 md:py-12 lg:py-16 z-10">
           {/* Darker overlay for footer readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/50 z-0" />
-          
+
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-8 lg:gap-12 mb-6 sm:mb-8 md:mb-12 lg:mb-16">
               {[
@@ -784,7 +806,7 @@ export default function LandingPage() {
                   <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold uppercase tracking-wider">{t('jasminRentCars')}</span>
                 </div>
                 <p className="text-gray-400 text-[10px] sm:text-xs md:text-sm lg:text-base text-center">{t('allRightsReserved')}</p>
-             
+
               </div>
             </div>
           </div>

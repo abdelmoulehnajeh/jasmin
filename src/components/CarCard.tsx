@@ -57,15 +57,14 @@ export default function CarCard({ car, onBook }: CarCardProps) {
             </svg>
           </div>
         )}
-        
+
         {/* Status Badge */}
         <div className="absolute top-4 right-4">
           <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              car.status === 'AVAILABLE'
+            className={`px-3 py-1 rounded-full text-xs font-semibold ${car.status === 'AVAILABLE'
                 ? 'bg-green-500 text-white'
                 : 'bg-red-500 text-white'
-            }`}
+              }`}
           >
             {t(car.status.toLowerCase())}
           </span>
@@ -149,6 +148,7 @@ export default function CarCard({ car, onBook }: CarCardProps) {
         {/* Price and CTA */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-3 sm:pt-4 border-t border-gray-700 gap-3 sm:gap-0">
           <div>
+            <p className="text-xs text-gray-400 mb-0.5">{t('startingFrom')}</p>
             <span className="text-2xl sm:text-3xl font-bold text-primary-500">
               DT {car.price_per_day}
             </span>
@@ -157,11 +157,10 @@ export default function CarCard({ car, onBook }: CarCardProps) {
           <button
             onClick={onBook}
             disabled={car.status !== 'AVAILABLE'}
-            className={`w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base ${
-              car.status === 'AVAILABLE'
+            className={`w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base ${car.status === 'AVAILABLE'
                 ? 'bg-primary-600 hover:bg-primary-700 text-white transform hover:scale-105'
                 : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-            }`}
+              }`}
           >
             {car.status === 'AVAILABLE' ? t('bookNow') : t('unavailable')}
           </button>

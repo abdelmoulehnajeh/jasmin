@@ -89,6 +89,9 @@ const resources = {
       noVehiclesAvailable: 'No Vehicles Available',
       updatingFleet: "We're updating our fleet for the selected service. Please check back soon.",
       loadingPremiumFleet: 'Loading our premium fleet...',
+      selectServiceToViewFleet: 'Select a service to view our fleet',
+      chooseService: 'Choose a Service',
+      selectServiceDesc: 'Please select a service above to view available vehicles.',
 
       // Airport Transfer Section
       airportAssuredService: 'Airport Assured Service',
@@ -140,6 +143,7 @@ const resources = {
       quickLinks: 'Quick Links',
 
       // Car Details
+      startingFrom: 'Starting from',
       perDay: 'per day',
       available: 'Available',
       rented: 'Rented',
@@ -170,6 +174,17 @@ const resources = {
       forgotPassword: 'Forgot Password?',
       dontHaveAccount: "Don't have an account?",
       alreadyHaveAccount: 'Already have an account?',
+      signInTitle: 'Sign in to your account',
+      createAccountTitle: 'Create a new account',
+      processing: 'PROCESSING...',
+      createAccountBtn: 'CREATE ACCOUNT',
+      signInBtn: 'SIGN IN',
+      promoCodeLabel: 'PROMO CODE (OPTIONAL) 🎁',
+      applyBtn: 'APPLY',
+      demoAccounts: 'DEMO ACCOUNTS:',
+      adminAccess: 'ADMIN ACCESS',
+      userAccess: 'USER ACCESS',
+      backToHome: '← BACK TO HOME',
 
       // User Dashboard
       myBookings: 'My Bookings',
@@ -307,6 +322,9 @@ const resources = {
       noVehiclesAvailable: 'Aucun Véhicule Disponible',
       updatingFleet: 'Nous mettons à jour notre flotte pour le service sélectionné. Revenez bientôt.',
       loadingPremiumFleet: 'Chargement de notre flotte premium...',
+      selectServiceToViewFleet: 'Sélectionnez un service pour voir notre flotte',
+      chooseService: 'Choisissez un service',
+      selectServiceDesc: 'Veuillez sélectionner un service ci-dessus pour voir les véhicules disponibles.',
 
       // Airport Transfer Section
       airportAssuredService: 'Service Aéroport Assuré',
@@ -364,8 +382,9 @@ const resources = {
       featureTransferDesc: 'Transferts confortables aéroport & destinations',
       featureLuxuryTitle: 'Flotte de Luxe',
       featureLuxuryDesc: 'Véhicules premium pour chaque occasion',
-      
+
       // Car Details
+      startingFrom: 'À partir de',
       perDay: 'par jour',
       available: 'Disponible',
       rented: 'Loué',
@@ -374,7 +393,7 @@ const resources = {
       specifications: 'Spécifications',
       ratings: 'Évaluations',
       viewDetails: 'Voir détails',
-      
+
       // Booking
       selectDates: 'Sélectionner dates',
       startDate: 'Date début',
@@ -385,7 +404,7 @@ const resources = {
       totalPrice: 'Prix total',
       notes: 'Notes',
       confirmBooking: 'Confirmer réservation',
-      
+
       // Auth
       email: 'Email',
       password: 'Mot de passe',
@@ -396,13 +415,24 @@ const resources = {
       forgotPassword: 'Mot de passe oublié?',
       dontHaveAccount: "Pas de compte?",
       alreadyHaveAccount: 'Déjà un compte?',
-      
+      signInTitle: 'Connectez-vous à votre compte',
+      createAccountTitle: 'Créer un nouveau compte',
+      processing: 'TRAITEMENT...',
+      createAccountBtn: 'CRÉER UN COMPTE',
+      signInBtn: 'SE CONNECTER',
+      promoCodeLabel: 'CODE PROMO (OPTIONNEL) 🎁',
+      applyBtn: 'APPLIQUER',
+      demoAccounts: 'COMPTES DÉMO :',
+      adminAccess: 'ACCÈS ADMINISTRATEUR',
+      userAccess: 'ACCÈS UTILISATEUR',
+      backToHome: '← RETOUR À L\'ACCUEIL',
+
       // User Dashboard
       myBookings: 'Mes réservations',
       myProfile: 'Mon profil',
       bookingHistory: 'Historique',
       rateBooking: 'Évaluer',
-      
+
       // Admin Panel
       adminDashboard: 'Tableau Admin',
       carManagement: 'Gestion voitures',
@@ -411,7 +441,7 @@ const resources = {
       addCar: 'Ajouter voiture',
       editCar: 'Modifier voiture',
       deleteCar: 'Supprimer voiture',
-      
+
       // Common
       save: 'Enregistrer',
       cancel: 'Annuler',
@@ -533,6 +563,9 @@ const resources = {
       noVehiclesAvailable: 'لا توجد مركبات متاحة',
       updatingFleet: 'نحن نقوم بتحديث أسطولنا للخدمة المحددة. يرجى التحقق مرة أخرى قريبًا.',
       loadingPremiumFleet: 'تحميل أسطولنا المتميز...',
+      selectServiceToViewFleet: 'اختر خدمة لعرض أسطولنا',
+      chooseService: 'اختر خدمة',
+      selectServiceDesc: 'يرجى اختيار خدمة أعلاه لعرض المركبات المتاحة.',
 
       // Airport Transfer Section
       airportAssuredService: 'خدمة المطار المضمونة',
@@ -582,8 +615,9 @@ const resources = {
       allRightsReserved: '© 2024 جاسمين لتأجير السيارات. جميع الحقوق محفوظة.',
       footerTagline: 'تجربة تأجير السيارات المتميزة الخاصة بك',
       quickLinks: 'روابط سريعة',
-      
+
       // Car Details
+      startingFrom: 'ابتداءً من',
       perDay: 'في اليوم',
       available: 'متاح',
       rented: 'مؤجر',
@@ -592,7 +626,7 @@ const resources = {
       specifications: 'المواصفات',
       ratings: 'التقييمات',
       viewDetails: 'عرض التفاصيل',
-      
+
       // Booking
       selectDates: 'اختر التواريخ',
       startDate: 'تاريخ البدء',
@@ -603,7 +637,7 @@ const resources = {
       totalPrice: 'السعر الكلي',
       notes: 'ملاحظات',
       confirmBooking: 'تأكيد الحجز',
-      
+
       // Auth
       email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
@@ -614,13 +648,24 @@ const resources = {
       forgotPassword: 'نسيت كلمة المرور؟',
       dontHaveAccount: 'ليس لديك حساب؟',
       alreadyHaveAccount: 'لديك حساب؟',
-      
+      signInTitle: 'سجل الدخول إلى حسابك',
+      createAccountTitle: 'إنشاء حساب جديد',
+      processing: 'جاري المعالجة...',
+      createAccountBtn: 'إنشاء حساب',
+      signInBtn: 'تسجيل الدخول',
+      promoCodeLabel: 'كود الخصم (اختياري) 🎁',
+      applyBtn: 'تطبيق',
+      demoAccounts: 'حسابات تجريبية:',
+      adminAccess: 'وصول المشرف',
+      userAccess: 'وصول المستخدم',
+      backToHome: '← العودة للرئيسية',
+
       // User Dashboard
       myBookings: 'حجوزاتي',
       myProfile: 'ملفي الشخصي',
       bookingHistory: 'السجل',
       rateBooking: 'تقييم',
-      
+
       // Admin Panel
       adminDashboard: 'لوحة الإدارة',
       carManagement: 'إدارة السيارات',
@@ -629,7 +674,7 @@ const resources = {
       addCar: 'إضافة سيارة',
       editCar: 'تعديل سيارة',
       deleteCar: 'حذف سيارة',
-      
+
       // Common
       save: 'حفظ',
       cancel: 'إلغاء',
@@ -751,6 +796,9 @@ const resources = {
       noVehiclesAvailable: 'Nessun Veicolo Disponibile',
       updatingFleet: 'Stiamo aggiornando la nostra flotta per il servizio selezionato. Ricontrolla presto.',
       loadingPremiumFleet: 'Caricamento della nostra flotta premium...',
+      selectServiceToViewFleet: 'Seleziona un servizio per visualizzare la nostra flotta',
+      chooseService: 'Scegli un servizio',
+      selectServiceDesc: 'Si prega di selezionare un servizio sopra per visualizzare i veicoli disponibili.',
 
       // Airport Transfer Section
       airportAssuredService: 'Servizio Aeroporto Garantito',
@@ -800,8 +848,9 @@ const resources = {
       allRightsReserved: '© 2024 Jasmin Rent Cars. Tutti i diritti riservati.',
       footerTagline: 'La tua esperienza di noleggio auto premium',
       quickLinks: 'Link Rapidi',
-      
+
       // Car Details
+      startingFrom: 'A partire da',
       perDay: 'al giorno',
       available: 'Disponibile',
       rented: 'Noleggiato',
@@ -810,7 +859,7 @@ const resources = {
       specifications: 'Specifiche',
       ratings: 'Valutazioni',
       viewDetails: 'Vedi dettagli',
-      
+
       // Booking
       selectDates: 'Seleziona date',
       startDate: 'Data inizio',
@@ -821,7 +870,7 @@ const resources = {
       totalPrice: 'Prezzo totale',
       notes: 'Note',
       confirmBooking: 'Conferma prenotazione',
-      
+
       // Auth
       email: 'Email',
       password: 'Password',
@@ -832,13 +881,24 @@ const resources = {
       forgotPassword: 'Password dimenticata?',
       dontHaveAccount: 'Non hai un account?',
       alreadyHaveAccount: 'Hai già un account?',
-      
+      signInTitle: 'Accedi al tuo account',
+      createAccountTitle: 'Crea un nuovo account',
+      processing: 'ELABORAZIONE...',
+      createAccountBtn: 'CREA ACCOUNT',
+      signInBtn: 'ACCEDI',
+      promoCodeLabel: 'CODICE PROMO (OPZIONALE) 🎁',
+      applyBtn: 'APPLICA',
+      demoAccounts: 'ACCOUNT DEMO:',
+      adminAccess: 'ACCESSO ADMIN',
+      userAccess: 'ACCESSO UTENTE',
+      backToHome: '← TORNA ALLA HOME',
+
       // User Dashboard
       myBookings: 'Le mie prenotazioni',
       myProfile: 'Il mio profilo',
       bookingHistory: 'Cronologia',
       rateBooking: 'Valuta',
-      
+
       // Admin Panel
       adminDashboard: 'Dashboard Admin',
       carManagement: 'Gestione auto',
@@ -847,7 +907,7 @@ const resources = {
       addCar: 'Aggiungi auto',
       editCar: 'Modifica auto',
       deleteCar: 'Elimina auto',
-      
+
       // Common
       save: 'Salva',
       cancel: 'Annulla',

@@ -34,7 +34,7 @@ export default function DashboardPage() {
             'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
-            query: `query { myBookings { id car_id start_date end_date total_days total_price status pickup_location dropoff_location notes created_at car { id name brand model image_base64 price_per_day } } }`,
+            query: `query { myBookings { id car_id start_date end_date total_days total_price status notes created_at car { id name brand model image_base64 price_per_day } } }`,
           }),
         });
 
@@ -73,6 +73,12 @@ export default function DashboardPage() {
         address: user.address || '',
         preferred_language: user.preferred_language || (i18n.language || 'en'),
       });
+
+      // Sync app language if different from user preference
+      if (user.preferred_language && user.preferred_language !== i18n.language) {
+        i18n.changeLanguage(user.preferred_language);
+        localStorage.setItem('language', user.preferred_language);
+      }
     }
   }, [user, i18n.language]);
 
@@ -116,13 +122,13 @@ export default function DashboardPage() {
       )}
 
       {/* Fixed left sidebar like Admin */}
-      <aside className={`fixed left-0 top-0 h-screen bg-gray-900 border-r-2 border-gold-500/20 transition-all z-50 p-4 sm:p-6 ${isCollapsed ? 'w-20' : 'w-72'} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}> 
+      <aside className={`fixed left-0 top-0 h-screen bg-gray-900 border-r-2 border-gold-500/20 transition-all z-50 p-4 sm:p-6 ${isCollapsed ? 'w-20' : 'w-72'} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gold-500 to-burgundy-600 rounded-xl flex items-center justify-center shadow-lg">
               <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
-                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6a1 1 0 001 1h.05a2.5 2.5 0 014.9 0h.05a1 1 0 001-1v-4.5a1 1 0 00-.293-.707l-2-2A1 1 0 0017 7h-3z"/>
+                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6a1 1 0 001 1h.05a2.5 2.5 0 014.9 0h.05a1 1 0 001-1v-4.5a1 1 0 00-.293-.707l-2-2A1 1 0 0017 7h-3z" />
               </svg>
             </div>
             <div>
@@ -143,7 +149,7 @@ export default function DashboardPage() {
         <div className="mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 rounded-full bg-gold-500 flex items-center justify-center text-black font-black text-lg">
-              {user ? (user.full_name ? user.full_name.split(' ').map((s:any)=>s[0]).slice(0,2).join('') : user.email?.[0]?.toUpperCase()) : 'U'}
+              {user ? (user.full_name ? user.full_name.split(' ').map((s: any) => s[0]).slice(0, 2).join('') : user.email?.[0]?.toUpperCase()) : 'U'}
             </div>
             <div>
               <div className="text-sm text-gray-300 font-bold">{user?.full_name || 'User'}</div>
@@ -178,58 +184,113 @@ export default function DashboardPage() {
       </aside>
 
       {/* Main content shifted right to account for sidebar */}
-      <main className={`${isCollapsed ? 'lg:ml-20' : 'lg:ml-72'} p-6 max-w-6xl mx-auto` }>
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-4xl font-black">{view === 'bookings' ? 'My Bookings' : view === 'reviews' ? 'My Reviews' : 'Profile'}</h1>
-          <div className="text-gray-400">Manage your bookings and reviews</div>
+      {/* Main content shifted right to account for sidebar */}
+      <main className={`${isCollapsed ? 'lg:ml-20' : 'lg:ml-72'} p-6 pt-20 lg:pt-6 max-w-6xl mx-auto`}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black">{view === 'bookings' ? 'My Bookings' : view === 'reviews' ? 'My Reviews' : 'Profile'}</h1>
+            <div className="text-gray-400 text-sm">Manage your bookings and reviews</div>
+          </div>
         </div>
 
         {view === 'bookings' && (
           <>
+            {/* Contact Support Section */}
+            <div className="bg-gradient-to-r from-gray-900 to-black border border-gold-500/30 rounded-2xl p-6 mb-8 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:bg-gold-500/20"></div>
+              <h2 className="text-xl font-bold text-white mb-4 relative z-10">Need Help with your Booking?</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 relative z-10">
+                <a href="tel:+21622420360" className="flex items-center justify-center gap-3 px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl transition-all group/btn">
+                  <span className="text-xl group-hover/btn:scale-110 transition-transform">📞</span>
+                  <span className="font-bold text-sm">Call Us</span>
+                </a>
+                <a href="https://wa.me/21622420360" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-4 py-3 bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[#25D366] rounded-xl transition-all group/btn">
+                  <span className="text-xl group-hover/btn:scale-110 transition-transform">💬</span>
+                  <span className="font-bold text-sm">WhatsApp</span>
+                </a>
+                <a href="https://m.me/100083471611688" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-4 py-3 bg-[#0084FF]/10 hover:bg-[#0084FF]/20 border border-[#0084FF]/30 text-[#0084FF] rounded-xl transition-all group/btn">
+                  <span className="text-xl group-hover/btn:scale-110 transition-transform">💬</span>
+                  <span className="font-bold text-sm">Messenger</span>
+                </a>
+              </div>
+            </div>
+
             {bookings.length === 0 && (
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-8 text-center">
                 <p className="text-gray-400">You have no bookings yet.</p>
-                <button onClick={() => router.push('/')} className="mt-4 px-4 py-2 bg-gold-600 rounded-lg font-bold">Browse Cars</button>
+                <button onClick={() => router.push('/')} className="mt-4 px-4 py-2 bg-gold-600 rounded-lg font-bold text-black">Browse Cars</button>
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {bookings.map((b) => (
-                <div key={b.id} className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
-                  <div className="flex">
-                    <div className="w-40 h-32 bg-gray-800 flex items-center justify-center">
+                <div key={b.id} className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-gold-500/30 transition-colors">
+                  <div className="flex flex-col sm:flex-row">
+                    <div className="w-full sm:w-40 h-48 sm:h-auto bg-gray-800 flex items-center justify-center relative">
                       {b.car?.image_base64 ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={b.car.image_base64} alt={typeof b.car?.name === 'string' ? b.car.name : (b.car?.name?.en || Object.values(b.car?.name || {})[0])} className="w-full h-full object-cover" />
                       ) : (
                         <div className="text-4xl">🚗</div>
                       )}
+                      <div className="absolute top-2 right-2 sm:hidden px-2 py-1 bg-black/60 backdrop-blur rounded text-xs font-bold border border-white/10">
+                        {b.status}
+                      </div>
                     </div>
-                    <div className="p-4 flex-1">
-                      <h3 className="text-xl font-bold">{b.car?.brand} {b.car?.model}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{new Date(b.start_date).toLocaleDateString()} → {new Date(b.end_date).toLocaleDateString()}</p>
-                      <p className="text-gold-500 font-bold">${b.total_price.toFixed(2)}</p>
-                      <p className="text-gray-400 text-xs mt-2">Status: {b.status}</p>
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-start mb-1">
+                          <h3 className="text-xl font-bold">{b.car?.brand} {b.car?.model}</h3>
+                          <span className="hidden sm:block text-xs font-bold px-2 py-1 bg-gray-800 rounded border border-gray-700">{b.status}</span>
+                        </div>
+                        <p className="text-gray-400 text-sm mb-3">
+                          {(() => {
+                            try {
+                              const start = new Date(b.start_date);
+                              const end = new Date(b.end_date);
+                              if (isNaN(start.getTime())) return 'Date pending...';
+                              return `${start.toLocaleDateString()} ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} → ${end.toLocaleDateString()}`;
+                            } catch { return 'Date pending...'; }
+                          })()}
+                        </p>
+                      </div>
+                      <div className="flex items-end justify-between mt-2">
+                        <div className="text-gold-500 font-bold text-xl">${b.total_price.toFixed(2)}</div>
+                        {/* Mobile Actions in Card Body for better touch target */}
+                        <div className="sm:hidden flex gap-2 w-full mt-4">
+                          <button onClick={() => router.push(`/cars/${b.car?.id}`)} className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm font-bold">View</button>
+                          <button onClick={() => setRatingState({ bookingId: b.id, rating: 5, comment: '' })} className="flex-1 px-3 py-2 bg-gold-600 text-black rounded-lg text-sm font-bold">Rate</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="p-4 border-t border-gray-800 bg-black/30 flex items-center justify-between">
-                    <div className="text-xs text-gray-400">Booked on {new Date(b.created_at).toLocaleString()}</div>
+
+                  {/* Desktop Actions Footer */}
+                  <div className="hidden sm:flex p-4 border-t border-gray-800 bg-black/30 items-center justify-between">
+                    <div className="text-xs text-gray-400">
+                      Booked on {(() => {
+                        try { return new Date(b.created_at).toLocaleDateString(); } catch { return '...'; }
+                      })()}
+                    </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => router.push(`/cars/${b.car?.id}`)} className="px-3 py-1 bg-gray-700 rounded">View Car</button>
-                      <button onClick={() => setRatingState({ bookingId: b.id, rating: 5, comment: '' })} className="px-3 py-1 bg-gold-600 rounded">Rate</button>
+                      <button onClick={() => router.push(`/cars/${b.car?.id}`)} className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-bold transition-colors">View Car</button>
+                      <button onClick={() => setRatingState({ bookingId: b.id, rating: 5, comment: '' })} className="px-3 py-1.5 bg-gold-600 hover:bg-gold-500 text-black rounded-lg text-sm font-bold transition-colors">Rate</button>
                     </div>
                   </div>
 
                   {/* Inline rating form when selected */}
                   {ratingState.bookingId === b.id && (
-                    <div className="p-4 border-t border-gray-800 bg-gray-900">
-                      <div className="mb-2 text-sm text-gray-300">Leave a rating</div>
-                      <div className="flex items-center gap-2 mb-2">
-                        {[1,2,3,4,5].map((n) => (
-                          <button key={n} onClick={() => setRatingState(s => ({ ...s, rating: n }))} className={`px-2 py-1 rounded ${ratingState.rating >= n ? 'bg-gold-500 text-black' : 'bg-gray-700 text-gray-300'}`}>{n}★</button>
+                    <div className="p-4 border-t border-gray-800 bg-gray-900 border-2 border-gold-500/20 m-[-1px] rounded-b-2xl">
+                      <div className="mb-3 flex justify-between items-center">
+                        <div className="text-sm font-bold text-white">Rate your experience</div>
+                        <button onClick={() => setRatingState({ bookingId: null, rating: 5, comment: '' })} className="text-gray-400 hover:text-white">✕</button>
+                      </div>
+                      <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <button key={n} onClick={() => setRatingState(s => ({ ...s, rating: n }))} className={`px-4 py-2 rounded-lg font-bold transition-all shrink-0 ${ratingState.rating >= n ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-gray-800 text-gray-500'}`}>{n}★</button>
                         ))}
                       </div>
-                      <textarea value={ratingState.comment} onChange={(e) => setRatingState(s => ({ ...s, comment: e.target.value }))} className="w-full bg-black/50 border border-gray-800 rounded p-2 text-sm text-white mb-2" placeholder="Write a short review..." />
+                      <textarea value={ratingState.comment} onChange={(e) => setRatingState(s => ({ ...s, comment: e.target.value }))} className="w-full bg-black/50 border border-gray-700 focus:border-gold-500 rounded-xl p-3 text-sm text-white mb-3 outline-none transition-colors" placeholder="Write a short review..." rows={3} />
                       <div className="flex gap-2">
                         <button onClick={async () => {
                           const token = localStorage.getItem('token');
@@ -242,8 +303,7 @@ export default function DashboardPage() {
                             toast.success('Thanks for your review');
                             setRatingState({ bookingId: null, rating: 5, comment: '' });
                           } catch (err) { console.error(err); toast.error('Failed to submit review'); }
-                        }} className="px-4 py-2 bg-gold-600 rounded font-bold">Submit</button>
-                        <button onClick={() => setRatingState({ bookingId: null, rating: 5, comment: '' })} className="px-3 py-2 bg-gray-700 rounded">Cancel</button>
+                        }} className="flex-1 px-4 py-3 bg-gold-600 hover:bg-gold-500 text-black rounded-xl font-bold transition-all">Submit Review</button>
                       </div>
                     </div>
                   )}
@@ -277,6 +337,13 @@ export default function DashboardPage() {
                 // update local state and storage
                 setUser(updated);
                 localStorage.setItem('user', JSON.stringify(updated));
+
+                // If language changed, apply it immediately
+                if (updated.preferred_language && updated.preferred_language !== i18n.language) {
+                  i18n.changeLanguage(updated.preferred_language);
+                  localStorage.setItem('language', updated.preferred_language);
+                }
+
                 toast.success('Profile updated');
               } catch (err) {
                 console.error(err);

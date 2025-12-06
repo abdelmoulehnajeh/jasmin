@@ -4,9 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import Calendar from 'react-calendar';
 import { Car } from '@/types';
-import 'react-calendar/dist/Calendar.css';
 
 interface BookingModalProps {
   car: Car;
@@ -36,43 +34,37 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
   })();
   const router = useRouter();
   const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [pickupLocation, setPickupLocation] = useState('');
-  const [dropoffLocation, setDropoffLocation] = useState('');
+  const [pickupTime, setPickupTime] = useState('10:00');
   const [notes, setNotes] = useState('');
-  const [step, setStep] = useState<'details' | 'dates' | 'locations'>('details');
+  const [step, setStep] = useState<'details' | 'booking'>('details');
 
   if (!isOpen) return null;
 
-  const calculateTotalDays = () => {
-    if (!startDate || !endDate) return 0;
-    const diff = endDate.getTime() - startDate.getTime();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-    // If end date is before start date, return 0 (invalid)
-    if (days < 0) return 0;
-
-    // If same day rental, count as 1 day minimum
-    return days === 0 ? 1 : days;
-  };
-
-  const totalDays = calculateTotalDays();
+  // Fixed duration of 1 day for now since we removed end date
+  const totalDays = 1;
   const totalPrice = totalDays * car.price_per_day;
 
   const handleSubmit = async () => {
-    if (!startDate || !endDate) {
-      alert('Please select dates');
+    if (!startDate || !pickupTime) {
+      alert('Please select date and time');
       return;
     }
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
+    // Construct start date with time
+    const [hours, minutes] = pickupTime.split(':').map(Number);
+    const startDateTime = new Date(startDate);
+    startDateTime.setHours(hours, minutes, 0, 0);
+
+    // End date is start date + 24 hours
+    const endDateTime = new Date(startDateTime);
+    endDateTime.setDate(endDateTime.getDate() + 1);
+
     const payload = {
       car_id: car.id,
-      start_date: startDate.toISOString(),
-      end_date: endDate.toISOString(),
-      pickup_location: pickupLocation,
-      dropoff_location: dropoffLocation,
+      start_date: startDateTime.toISOString(),
+      end_date: endDateTime.toISOString(),
       notes,
     };
 
@@ -81,7 +73,8 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
       try {
         localStorage.setItem('pendingBooking', JSON.stringify(payload));
         toast('Please sign in to complete your booking', { icon: '🔒' });
-        router.push('/login');
+        // Redirect to login with tab=signup to prompt account creation
+        router.push('/login?tab=signup');
       } catch (e) {
         console.error('Failed to store pending booking', e);
         toast.error('Unable to proceed');
@@ -194,6 +187,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                   </div>
                   <div>
                     <span className="text-[#FFC800] text-xs sm:text-sm">Price</span>
+                    <p className="text-gray-300 text-xs">{t('startingFrom')}</p>
                     <p className="text-[#FFC800] font-bold text-lg sm:text-xl">
                       DT {car.price_per_day}/{t('perDay')}
                     </p>
@@ -211,25 +205,22 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
           <div className="flex border-b border-[#FFC800]/20">
             <button
               onClick={() => setStep('details')}
-              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base font-bold ${
-                step === 'details'
-                  ? 'bg-[#FFC800] text-black'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              }`}
+              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base font-bold ${step === 'details'
+                ? 'bg-[#FFC800] text-black'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
             >
               {t('details')}
             </button>
             <button
-              onClick={() => setStep('dates')}
-              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base font-bold ${
-                step === 'dates'
-                  ? 'bg-[#FFC800] text-black'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              }`}
+              onClick={() => setStep('booking')}
+              className={`flex-1 py-3 sm:py-4 text-center transition-colors text-xs sm:text-base font-bold ${step === 'booking'
+                ? 'bg-[#FFC800] text-black'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
             >
               {t('selectDates')}
             </button>
-        
           </div>
 
           {/* Modal Content */}
@@ -296,7 +287,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
               </div>
             )}
 
-            {step === 'dates' && (
+            {step === 'booking' && (
               <div>
                 <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">{t('selectDates')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -306,11 +297,13 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                       type="date"
                       value={startDate ? startDate.toISOString().split('T')[0] : ''}
                       onChange={(e) => {
-                        const newStartDate = new Date(e.target.value);
-                        setStartDate(newStartDate);
-                        // If end date is now before start date, reset end date
-                        if (endDate && endDate < newStartDate) {
-                          setEndDate(null);
+                        const selectedDate = new Date(e.target.value);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        // Only allow dates from today onwards
+                        if (selectedDate >= today) {
+                          setStartDate(selectedDate);
                         }
                       }}
                       min={new Date().toISOString().split('T')[0]}
@@ -318,67 +311,17 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 mb-2 text-sm sm:text-base">{t('endDate')}</label>
+                    <label className="block text-gray-400 mb-2 text-sm sm:text-base">{t('pickupTime')}</label>
                     <input
-                      type="date"
-                      value={endDate ? endDate.toISOString().split('T')[0] : ''}
-                      onChange={(e) => {
-                        const newEndDate = new Date(e.target.value);
-                        // Validate that end date is not before start date
-                        if (startDate && newEndDate < startDate) {
-                          alert('End date cannot be before start date!');
-                          return;
-                        }
-                        setEndDate(newEndDate);
-                      }}
-                      min={startDate ? startDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                      type="time"
+                      value={pickupTime}
+                      onChange={(e) => setPickupTime(e.target.value)}
                       className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg focus:ring-2 focus:ring-[#FFC800] outline-none text-sm sm:text-base"
                     />
                   </div>
                 </div>
 
-                {startDate && endDate && (
-                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-[#FFC800]/20 border-2 border-[#FFC800] rounded-lg">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-                      <div>
-                        <span className="text-gray-300 text-sm sm:text-base">Total Days:</span>
-                        <span className="text-white font-bold ml-2">{totalDays}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-300 text-sm sm:text-base">Total Price:</span>
-                        <span className="text-[#FFC800] font-bold text-xl sm:text-2xl ml-2">
-                          ${totalPrice.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {step === 'locations' && (
-              <div className="space-y-3 sm:space-y-4">
-                <div>
-                  <label className="block text-gray-400 mb-2 text-sm sm:text-base">{t('pickupLocation')}</label>
-                  <input
-                    type="text"
-                    value={pickupLocation}
-                    onChange={(e) => setPickupLocation(e.target.value)}
-                    placeholder="Enter pickup location"
-                    className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none text-sm sm:text-base"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400 mb-2 text-sm sm:text-base">{t('dropoffLocation')}</label>
-                  <input
-                    type="text"
-                    value={dropoffLocation}
-                    onChange={(e) => setDropoffLocation(e.target.value)}
-                    placeholder="Enter dropoff location"
-                    className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none text-sm sm:text-base"
-                  />
-                </div>
-                <div>
+                <div className="mt-4 sm:mt-6">
                   <label className="block text-gray-400 mb-2 text-sm sm:text-base">{t('notes')} (Optional)</label>
                   <textarea
                     value={notes}
@@ -388,6 +331,23 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                     className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none resize-none text-sm sm:text-base"
                   />
                 </div>
+
+                {startDate && (
+                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-[#FFC800]/20 border-2 border-[#FFC800] rounded-lg">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+                      <div>
+                        <span className="text-gray-300 text-sm sm:text-base">Duration:</span>
+                        <span className="text-white font-bold ml-2">24 Hours (1 Day)</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-300 text-sm sm:text-base">Total Price:</span>
+                        <span className="text-[#FFC800] font-bold text-xl sm:text-2xl ml-2">
+                          DT {totalPrice.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -395,11 +355,11 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
           {/* Footer */}
           <div className="p-4 sm:p-6 border-t border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="w-full sm:w-auto">
-              {totalDays > 0 && (
+              {startDate && (
                 <div className="text-left sm:text-right">
                   <span className="text-gray-300 text-sm sm:text-base">Total: </span>
                   <span className="text-[#FFC800] font-bold text-2xl sm:text-3xl">
-                    ${totalPrice.toFixed(2)}
+                    DT {totalPrice.toFixed(2)}
                   </span>
                 </div>
               )}
@@ -413,12 +373,11 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={!startDate || !endDate}
-                className={`flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base ${
-                  startDate && endDate
-                    ? 'bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black shadow-lg hover:shadow-xl'
-                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                }`}
+                disabled={!startDate || !pickupTime}
+                className={`flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base ${startDate && pickupTime
+                  ? 'bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black shadow-lg hover:shadow-xl'
+                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  }`}
               >
                 {t('confirmBooking')}
               </button>

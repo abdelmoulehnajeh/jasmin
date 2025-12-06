@@ -36,16 +36,16 @@ export const resolvers = {
     cars: async (_: any, { language = 'en', service_type }: any) => {
       let queryText = 'SELECT * FROM cars WHERE status = $1';
       const params: any[] = ['AVAILABLE'];
-      
+
       if (service_type) {
         queryText += ' AND service_type = $2';
         params.push(service_type);
       }
-      
+
       queryText += ' ORDER BY created_at DESC';
-      
+
       const result = await query(queryText, params);
-      
+
       return result.rows.map(car => ({
         ...car,
         name: getLocalizedText(car.name, language),
@@ -59,7 +59,7 @@ export const resolvers = {
     car: async (_: any, { id, language = 'en' }: any) => {
       const result = await query('SELECT * FROM cars WHERE id = $1', [id]);
       if (result.rows.length === 0) throw new Error('Car not found');
-      
+
       const car = result.rows[0];
       return {
         ...car,
@@ -77,7 +77,7 @@ export const resolvers = {
         'SELECT available_count FROM cars WHERE id = $1',
         [carId]
       );
-      
+
       if (carResult.rows.length === 0 || carResult.rows[0].available_count <= 0) {
         return false;
       }
@@ -104,19 +104,19 @@ export const resolvers = {
     // Authenticated queries
     me: async (_: any, __: any, context: any) => {
       if (!context.user) throw new Error('Not authenticated');
-      
+
       const result = await query(
         'SELECT id, email, full_name, phone, address, role, preferred_language, is_verified, created_at FROM users WHERE id = $1',
         [context.user.userId]
       );
-      
+
       if (result.rows.length === 0) throw new Error('User not found');
       return result.rows[0];
     },
 
     myBookings: async (_: any, __: any, context: any) => {
       if (!context.user) throw new Error('Not authenticated');
-      
+
       const result = await query(
         `SELECT b.*, 
                 c.name, c.brand, c.model, c.image_base64, c.price_per_day
@@ -129,6 +129,9 @@ export const resolvers = {
 
       return result.rows.map(booking => ({
         ...booking,
+        start_date: new Date(booking.start_date).toISOString(),
+        end_date: new Date(booking.end_date).toISOString(),
+        created_at: new Date(booking.created_at).toISOString(),
         car: {
           id: booking.car_id,
           name: getLocalizedText(booking.name, context.user.language || 'en'),
@@ -142,7 +145,7 @@ export const resolvers = {
 
     booking: async (_: any, { id }: any, context: any) => {
       if (!context.user) throw new Error('Not authenticated');
-      
+
       const result = await query(
         `SELECT b.*, 
                 c.name, c.brand, c.model, c.image_base64, c.price_per_day
@@ -153,7 +156,7 @@ export const resolvers = {
       );
 
       if (result.rows.length === 0) throw new Error('Booking not found');
-      
+
       const booking = result.rows[0];
       return {
         ...booking,
@@ -173,7 +176,7 @@ export const resolvers = {
       if (!context.user || context.user.role !== UserRole.ADMIN) {
         throw new Error('Not authorized');
       }
-      
+
       const result = await query(
         `SELECT b.*, 
                 c.name, c.brand, c.model,
@@ -205,11 +208,11 @@ export const resolvers = {
       if (!context.user || context.user.role !== UserRole.ADMIN) {
         throw new Error('Not authorized');
       }
-      
+
       const result = await query(
         'SELECT id, email, full_name, phone, address, role, preferred_language, is_verified, created_at FROM users ORDER BY created_at DESC'
       );
-      
+
       return result.rows;
     },
 
@@ -381,7 +384,7 @@ export const resolvers = {
     // Auth mutations
     signup: async (_: any, { input }: any) => {
       const { email, password, full_name, phone, address, preferred_language, service_type } = input;
-      
+
       // Check if user exists
       const existingUser = await query('SELECT id FROM users WHERE email = $1', [email]);
       if (existingUser.rows.length > 0) {
@@ -447,7 +450,7 @@ export const resolvers = {
     createBooking: async (_: any, { input }: any, context: any) => {
       if (!context.user) throw new Error('Not authenticated');
 
-      const { car_id, start_date, end_date, pickup_location, dropoff_location, notes } = input;
+      const { car_id, start_date, end_date, notes } = input;
 
       // Calculate days and price
       const start = new Date(start_date);
@@ -462,10 +465,10 @@ export const resolvers = {
 
       // Create booking
       const result = await query(
-        `INSERT INTO bookings (car_id, user_id, start_date, end_date, total_days, total_price, pickup_location, dropoff_location, notes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `INSERT INTO bookings (car_id, user_id, start_date, end_date, total_days, total_price, notes)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING *`,
-        [car_id, context.user.userId, start_date, end_date, days, totalPrice, pickup_location, dropoff_location, notes]
+        [car_id, context.user.userId, start_date, end_date, days, totalPrice, notes]
       );
 
       return result.rows[0];

@@ -51,8 +51,6 @@ export const typeDefs = `#graphql
     total_price: Float!
     status: String!
     payment_status: String!
-    pickup_location: String
-    dropoff_location: String
     notes: String
     created_at: String!
     car: Car
@@ -169,8 +167,6 @@ export const typeDefs = `#graphql
     car_id: String!
     start_date: String!
     end_date: String!
-    pickup_location: String
-    dropoff_location: String
     notes: String
   }
 

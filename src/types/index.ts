@@ -92,8 +92,6 @@ export interface Booking {
   total_price: number;
   status: BookingStatus;
   payment_status: PaymentStatus;
-  pickup_location?: string;
-  dropoff_location?: string;
   notes?: string;
   created_at: Date;
   updated_at: Date;

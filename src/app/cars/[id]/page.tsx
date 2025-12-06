@@ -4,10 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import BookingModal from '@/components/modals/BookingModal';
+import { useClientTranslation } from '@/hooks/useClientTranslation';
 
 export default function CarDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { t } = useClientTranslation();
   const id = params?.id as string;
 
   const [car, setCar] = useState<any | null>(null);
@@ -116,6 +118,7 @@ export default function CarDetailPage() {
             </div>
             <div>
               <div className="text-gold-300 text-sm">Price</div>
+              <div className="text-gray-400 text-xs mb-0.5">{t('startingFrom')}</div>
               <div className="text-gold-500 font-bold">${car.price_per_day} / day</div>
             </div>
           </div>
