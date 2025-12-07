@@ -13,6 +13,7 @@ interface Booking {
   end_date: string;
   total_price: number;
   status: string;
+  flight_number?: string;
   user: {
     id: number;
     full_name: string;
@@ -67,7 +68,7 @@ export default function BookingsManagement() {
           query: `
             query {
               allBookings {
-                id start_date end_date total_price status
+                id start_date end_date total_price status flight_number
                 user { id full_name email }
                 car { id brand model }
               }
@@ -429,6 +430,12 @@ export default function BookingsManagement() {
                       <p className="text-xs text-gray-500 uppercase font-bold mb-1">Véhicule</p>
                       <p className="text-white font-bold">{selectedBooking.car.brand} {selectedBooking.car.model}</p>
                     </div>
+                    {selectedBooking.flight_number && (
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">✈️ Numéro de Vol</p>
+                        <p className="text-white font-bold">{selectedBooking.flight_number}</p>
+                      </div>
+                    )}
                     <div>
                       <p className="text-xs text-gray-500 uppercase font-bold mb-1">Période</p>
                       <p className="text-white">{formatDate(selectedBooking.start_date)}</p>
@@ -487,6 +494,7 @@ export default function BookingsManagement() {
                       <th className="px-6 py-4 text-left text-gold-500 font-black">ID</th>
                       <th className="px-6 py-4 text-left text-gold-500 font-black">CLIENT</th>
                       <th className="px-6 py-4 text-left text-gold-500 font-black">VOITURE</th>
+                      <th className="px-6 py-4 text-left text-gold-500 font-black">VOL</th>
                       <th className="px-6 py-4 text-left text-gold-500 font-black">DATES</th>
                       <th className="px-6 py-4 text-left text-gold-500 font-black">PRIX</th>
                       <th className="px-6 py-4 text-left text-gold-500 font-black">STATUT</th>
@@ -503,6 +511,16 @@ export default function BookingsManagement() {
                         </td>
                         <td className="px-6 py-4 text-white font-bold">
                           {booking.car.brand} {booking.car.model}
+                        </td>
+                        <td className="px-6 py-4">
+                          {booking.flight_number ? (
+                            <div className="flex items-center gap-1">
+                              <span className="text-lg">✈️</span>
+                              <span className="text-white font-bold">{booking.flight_number}</span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 text-sm">-</span>
+                          )}
                         </td>
                         <td className="px-6 py-4">
                           <p className="text-white">{formatDate(booking.start_date)}</p>
@@ -578,6 +596,14 @@ export default function BookingsManagement() {
                       <p className="text-xs text-gray-500 uppercase font-bold mb-1">Véhicule</p>
                       <p className="text-white font-bold">{booking.car.brand} {booking.car.model}</p>
                     </div>
+
+                    {/* Flight Number - only show if exists */}
+                    {booking.flight_number && (
+                      <div className="border-t border-gray-800 pt-3">
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">✈️ Numéro de Vol</p>
+                        <p className="text-white font-bold">{booking.flight_number}</p>
+                      </div>
+                    )}
 
                     {/* Dates */}
                     <div className="border-t border-gray-800 pt-3">

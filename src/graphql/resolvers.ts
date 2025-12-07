@@ -450,7 +450,7 @@ export const resolvers = {
     createBooking: async (_: any, { input }: any, context: any) => {
       if (!context.user) throw new Error('Not authenticated');
 
-      const { car_id, start_date, end_date, notes } = input;
+      const { car_id, start_date, end_date, notes, flight_number } = input;
 
       // Calculate days and price
       const start = new Date(start_date);
@@ -465,10 +465,10 @@ export const resolvers = {
 
       // Create booking
       const result = await query(
-        `INSERT INTO bookings (car_id, user_id, start_date, end_date, total_days, total_price, notes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO bookings (car_id, user_id, start_date, end_date, total_days, total_price, notes, flight_number)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`,
-        [car_id, context.user.userId, start_date, end_date, days, totalPrice, notes]
+        [car_id, context.user.userId, start_date, end_date, days, totalPrice, notes, flight_number || null]
       );
 
       return result.rows[0];

@@ -318,18 +318,19 @@ export default function AdminGiftsPage() {
 
       <div className="space-y-6 sm:space-y-8">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-2">
               GIFT <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">OFFERS</span>
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-400">Manage promotional gifts and discounts</p>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-400">Manage promotional gifts and discounts</p>
           </div>
           <button
             onClick={openCreateModal}
-            className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all transform hover:scale-105"
+            className="w-full sm:w-auto px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 text-sm sm:text-base"
           >
-            + CREATE GIFT
+            <span className="hidden sm:inline">+ CREATE GIFT</span>
+            <span className="sm:hidden">+ NEW GIFT</span>
           </button>
         </div>
 
@@ -379,29 +380,31 @@ export default function AdminGiftsPage() {
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={() => handleToggleStatus(gift.id)}
-                    className={`flex-1 py-2 ${
+                    className={`flex-1 py-2 sm:py-2 ${
                       gift.is_active
                         ? 'bg-yellow-600 hover:bg-yellow-700'
                         : 'bg-green-600 hover:bg-green-700'
-                    } text-white text-sm font-bold rounded-lg transition-colors`}
+                    } text-white text-xs sm:text-sm font-bold rounded-lg transition-colors`}
                   >
                     {gift.is_active ? 'DEACTIVATE' : 'ACTIVATE'}
                   </button>
-                  <button
-                    onClick={() => openEditModal(gift)}
-                    className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors"
-                  >
-                    EDIT
-                  </button>
-                  <button
-                    onClick={() => handleDelete(gift.id)}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition-colors"
-                  >
-                    🗑
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => openEditModal(gift)}
+                      className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-lg transition-colors"
+                    >
+                      EDIT
+                    </button>
+                    <button
+                      onClick={() => handleDelete(gift.id)}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold rounded-lg transition-colors"
+                    >
+                      🗑
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -426,23 +429,23 @@ export default function AdminGiftsPage() {
 
       {/* Create/Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8">
-            <h2 className="text-2xl sm:text-3xl font-black text-white mb-6">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto p-4 sm:p-6 md:p-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-4 sm:mb-6">
               {editingGift ? 'EDIT GIFT' : 'CREATE NEW GIFT'}
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Emoji Selector */}
               <div>
-                <label className="block text-sm font-bold text-purple-400 mb-3">SELECT EMOJI</label>
-                <div className="grid grid-cols-8 gap-2">
+                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2 sm:mb-3">SELECT EMOJI</label>
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
                   {EMOJI_OPTIONS.map((emoji) => (
                     <button
                       key={emoji}
                       type="button"
                       onClick={() => setFormData({ ...formData, emoji })}
-                      className={`text-3xl p-3 rounded-lg border-2 transition-all ${
+                      className={`text-2xl sm:text-3xl p-2 sm:p-3 rounded-lg border-2 transition-all ${
                         formData.emoji === emoji
                           ? 'border-purple-500 bg-purple-500/20 scale-110'
                           : 'border-gray-700 hover:border-purple-500/50'
@@ -456,14 +459,14 @@ export default function AdminGiftsPage() {
 
               {/* Title (Multilingual) */}
               <div>
-                <label className="block text-sm font-bold text-purple-400 mb-2">TITLE</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">TITLE</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <input
                     type="text"
                     placeholder="English"
                     value={formData.title_en}
                     onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                    className="px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                     required
                   />
                   <input
@@ -471,34 +474,34 @@ export default function AdminGiftsPage() {
                     placeholder="Français"
                     value={formData.title_fr}
                     onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
-                    className="px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                   />
                   <input
                     type="text"
                     placeholder="العربية"
                     value={formData.title_ar}
                     onChange={(e) => setFormData({ ...formData, title_ar: e.target.value })}
-                    className="px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                   />
                   <input
                     type="text"
                     placeholder="Italiano"
                     value={formData.title_it}
                     onChange={(e) => setFormData({ ...formData, title_it: e.target.value })}
-                    className="px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                   />
                 </div>
               </div>
 
               {/* Description (Multilingual) */}
               <div>
-                <label className="block text-sm font-bold text-purple-400 mb-2">DESCRIPTION</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">DESCRIPTION</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <textarea
                     placeholder="English"
                     value={formData.description_en}
                     onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
-                    className="px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                     rows={3}
                     required
                   />
@@ -506,91 +509,91 @@ export default function AdminGiftsPage() {
                     placeholder="Français"
                     value={formData.description_fr}
                     onChange={(e) => setFormData({ ...formData, description_fr: e.target.value })}
-                    className="px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                     rows={3}
                   />
                   <textarea
                     placeholder="العربية"
                     value={formData.description_ar}
                     onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
-                    className="px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                     rows={3}
                   />
                   <textarea
                     placeholder="Italiano"
                     value={formData.description_it}
                     onChange={(e) => setFormData({ ...formData, description_it: e.target.value })}
-                    className="px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                     rows={3}
                   />
                 </div>
               </div>
 
               {/* Discount & Promo Code */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-purple-400 mb-2">DISCOUNT %</label>
+                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">DISCOUNT %</label>
                   <input
                     type="number"
                     min="0"
                     max="100"
                     value={formData.discount_percentage}
                     onChange={(e) => setFormData({ ...formData, discount_percentage: parseInt(e.target.value) })}
-                    className="w-full px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-purple-400 mb-2">PROMO CODE (Optional)</label>
+                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">PROMO CODE (Optional)</label>
                   <input
                     type="text"
                     placeholder="GIFT20-ABC123"
                     value={formData.promo_code}
                     onChange={(e) => setFormData({ ...formData, promo_code: e.target.value.toUpperCase() })}
-                    className="w-full px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none uppercase"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none uppercase text-sm sm:text-base"
                   />
                 </div>
               </div>
 
               {/* Display Order & Active Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-purple-400 mb-2">DISPLAY ORDER</label>
+                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">DISPLAY ORDER</label>
                   <input
                     type="number"
                     min="0"
                     value={formData.display_order}
                     onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) })}
-                    className="w-full px-4 py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 focus:border-purple-500 rounded-lg text-white outline-none text-sm sm:text-base"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-purple-400 mb-2">STATUS</label>
-                  <label className="flex items-center gap-3 px-4 py-3 bg-black/50 border-2 border-gray-700 rounded-lg cursor-pointer">
+                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">STATUS</label>
+                  <label className="flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 rounded-lg cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.is_active}
                       onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="w-5 h-5"
+                      className="w-4 h-4 sm:w-5 sm:h-5"
                     />
-                    <span className="text-white font-bold">Active</span>
+                    <span className="text-white font-bold text-sm sm:text-base">Active</span>
                   </label>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors"
+                  className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors text-sm sm:text-base"
                 >
                   CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg transition-all"
+                  className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg transition-all text-sm sm:text-base"
                 >
                   {editingGift ? 'UPDATE GIFT' : 'CREATE GIFT'}
                 </button>

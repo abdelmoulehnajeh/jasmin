@@ -36,6 +36,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [pickupTime, setPickupTime] = useState('10:00');
   const [notes, setNotes] = useState('');
+  const [flightNumber, setFlightNumber] = useState('');
   const [step, setStep] = useState<'details' | 'booking'>('details');
 
   if (!isOpen) return null;
@@ -66,6 +67,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
       start_date: startDateTime.toISOString(),
       end_date: endDateTime.toISOString(),
       notes,
+      flight_number: flightNumber || undefined,
     };
 
     // If user is not logged in, save pending booking and redirect to login
@@ -331,6 +333,22 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                     className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none resize-none text-sm sm:text-base"
                   />
                 </div>
+
+                {car.service_type === 'transfer' && (
+                  <div className="mt-4 sm:mt-6">
+                    <label className="block text-gray-400 mb-2 text-sm sm:text-base">
+                      ✈️ Flight Number (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={flightNumber}
+                      onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
+                      placeholder="e.g., TU123, AF456"
+                      className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg focus:ring-2 focus:ring-[#FFC800] outline-none text-sm sm:text-base"
+                    />
+                    <p className="text-gray-500 text-xs mt-1">Enter your flight number for tracking purposes</p>
+                  </div>
+                )}
 
                 {startDate && (
                   <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-[#FFC800]/20 border-2 border-[#FFC800] rounded-lg">

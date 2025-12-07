@@ -93,6 +93,7 @@ export interface Booking {
   status: BookingStatus;
   payment_status: PaymentStatus;
   notes?: string;
+  flight_number?: string;
   created_at: Date;
   updated_at: Date;
   car?: Car;
