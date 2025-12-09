@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 interface Gift {
@@ -31,11 +32,13 @@ const EMOJI_OPTIONS = [
 
 export default function AdminGiftsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGift, setEditingGift] = useState<Gift | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -55,6 +58,7 @@ export default function AdminGiftsPage() {
   });
 
   useEffect(() => {
+    setMounted(true);
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
@@ -65,7 +69,7 @@ export default function AdminGiftsPage() {
 
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'ADMIN') {
-      toast.error('Access denied');
+      toast.error(t('accessDenied'));
       router.push('/');
       return;
     }
@@ -97,11 +101,11 @@ export default function AdminGiftsPage() {
       if (!data.errors) {
         setGifts(data.data.allGifts);
       } else {
-        toast.error('Failed to load gifts');
+        toast.error(t('loadingError'));
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to load gifts');
+      toast.error(t('loadingError'));
     } finally {
       setLoading(false);
     }
@@ -223,7 +227,7 @@ export default function AdminGiftsPage() {
 
       const data = await response.json();
       if (!data.errors) {
-        toast.success(editingGift ? 'Gift updated!' : 'Gift created!');
+        toast.success(editingGift ? t('giftUpdated') : t('giftCreated'));
         setIsModalOpen(false);
         fetchGifts(token);
       } else {
@@ -231,12 +235,12 @@ export default function AdminGiftsPage() {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Operation failed');
+      toast.error(t('loadingError'));
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this gift?')) return;
+    if (!confirm(t('confirmDeleteGift'))) return;
 
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -256,14 +260,14 @@ export default function AdminGiftsPage() {
 
       const data = await response.json();
       if (!data.errors) {
-        toast.success('Gift deleted!');
+        toast.success(t('giftDeleted'));
         fetchGifts(token);
       } else {
         toast.error(data.errors[0].message);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Delete failed');
+      toast.error(t('loadingError'));
     }
   };
 
@@ -290,23 +294,31 @@ export default function AdminGiftsPage() {
 
       const data = await response.json();
       if (!data.errors) {
-        toast.success('Status updated!');
+        toast.success(t('statusUpdated'));
         fetchGifts(token);
       } else {
         toast.error(data.errors[0].message);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Toggle failed');
+      toast.error(t('loadingError'));
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-20 h-20 border-4 border-gold-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white font-bold text-xl">LOADING...</p>
+          <p className="text-white font-bold text-xl">{t('loadingText')}</p>
         </div>
       </div>
     );
@@ -321,16 +333,16 @@ export default function AdminGiftsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-2">
-              GIFT <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">OFFERS</span>
+              {t('giftOffers')}
             </h1>
-            <p className="text-sm sm:text-base lg:text-lg text-gray-400">Manage promotional gifts and discounts</p>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-400">{t('manageGifts')}</p>
           </div>
           <button
             onClick={openCreateModal}
             className="w-full sm:w-auto px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 text-sm sm:text-base"
           >
-            <span className="hidden sm:inline">+ CREATE GIFT</span>
-            <span className="sm:hidden">+ NEW GIFT</span>
+            <span className="hidden sm:inline">{t('createGiftBtn')}</span>
+            <span className="sm:hidden">{t('createGiftBtn')}</span>
           </button>
         </div>
 
@@ -343,14 +355,13 @@ export default function AdminGiftsPage() {
             return (
               <div
                 key={gift.id}
-                className={`bg-gradient-to-br from-gray-900 to-gray-800 border-2 ${
-                  gift.is_active ? 'border-purple-500/30' : 'border-gray-700/30'
-                } rounded-2xl p-4 sm:p-6 shadow-xl relative overflow-hidden`}
+                className={`bg-gradient-to-br from-gray-900 to-gray-800 border-2 ${gift.is_active ? 'border-purple-500/30' : 'border-gray-700/30'
+                  } rounded-2xl p-4 sm:p-6 shadow-xl relative overflow-hidden`}
               >
                 {/* Active Badge */}
                 {gift.is_active && (
                   <div className="absolute top-3 right-3 bg-green-500 text-black text-xs font-bold px-2 py-1 rounded-full">
-                    ACTIVE
+                    {t('activeStatus')}
                   </div>
                 )}
 
@@ -374,7 +385,7 @@ export default function AdminGiftsPage() {
                 {/* Promo Code */}
                 {gift.promo_code && (
                   <div className="bg-black/50 border border-purple-500/30 rounded-lg p-2 mb-3 sm:mb-4">
-                    <span className="text-xs text-gray-400">CODE:</span>
+                    <span className="text-xs text-gray-400">{t('codeText')}:</span>
                     <span className="text-sm font-bold text-purple-400 ml-2">{gift.promo_code}</span>
                   </div>
                 )}
@@ -383,20 +394,19 @@ export default function AdminGiftsPage() {
                 <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={() => handleToggleStatus(gift.id)}
-                    className={`flex-1 py-2 sm:py-2 ${
-                      gift.is_active
-                        ? 'bg-yellow-600 hover:bg-yellow-700'
-                        : 'bg-green-600 hover:bg-green-700'
-                    } text-white text-xs sm:text-sm font-bold rounded-lg transition-colors`}
+                    className={`flex-1 py-2 sm:py-2 ${gift.is_active
+                      ? 'bg-yellow-600 hover:bg-yellow-700'
+                      : 'bg-green-600 hover:bg-green-700'
+                      } text-white text-xs sm:text-sm font-bold rounded-lg transition-colors`}
                   >
-                    {gift.is_active ? 'DEACTIVATE' : 'ACTIVATE'}
+                    {gift.is_active ? t('deactivate') : t('activate')}
                   </button>
                   <div className="flex gap-2">
                     <button
                       onClick={() => openEditModal(gift)}
                       className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-lg transition-colors"
                     >
-                      EDIT
+                      {t('editBtn')}
                     </button>
                     <button
                       onClick={() => handleDelete(gift.id)}
@@ -415,13 +425,13 @@ export default function AdminGiftsPage() {
         {gifts.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🎁</div>
-            <h3 className="text-xl font-bold text-white mb-2">No gifts yet</h3>
-            <p className="text-gray-400 mb-6">Create your first promotional gift offer</p>
+            <h3 className="text-xl font-bold text-white mb-2">{t('noGiftsYet')}</h3>
+            <p className="text-gray-400 mb-6">{t('createFirstGift')}</p>
             <button
               onClick={openCreateModal}
               className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all transform hover:scale-105"
             >
-              CREATE FIRST GIFT
+              {t('createFirstGiftBtn')}
             </button>
           </div>
         )}
@@ -432,24 +442,23 @@ export default function AdminGiftsPage() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto p-4 sm:p-6 md:p-8">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-4 sm:mb-6">
-              {editingGift ? 'EDIT GIFT' : 'CREATE NEW GIFT'}
+              {editingGift ? t('editGift') : t('createNewGift')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Emoji Selector */}
               <div>
-                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2 sm:mb-3">SELECT EMOJI</label>
+                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2 sm:mb-3">{t('selectEmoji')}</label>
                 <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
                   {EMOJI_OPTIONS.map((emoji) => (
                     <button
                       key={emoji}
                       type="button"
                       onClick={() => setFormData({ ...formData, emoji })}
-                      className={`text-2xl sm:text-3xl p-2 sm:p-3 rounded-lg border-2 transition-all ${
-                        formData.emoji === emoji
-                          ? 'border-purple-500 bg-purple-500/20 scale-110'
-                          : 'border-gray-700 hover:border-purple-500/50'
-                      }`}
+                      className={`text-2xl sm:text-3xl p-2 sm:p-3 rounded-lg border-2 transition-all ${formData.emoji === emoji
+                        ? 'border-purple-500 bg-purple-500/20 scale-110'
+                        : 'border-gray-700 hover:border-purple-500/50'
+                        }`}
                     >
                       {emoji}
                     </button>
@@ -459,7 +468,7 @@ export default function AdminGiftsPage() {
 
               {/* Title (Multilingual) */}
               <div>
-                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">TITLE</label>
+                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">{t('titleGiftLabel')}</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <input
                     type="text"
@@ -495,7 +504,7 @@ export default function AdminGiftsPage() {
 
               {/* Description (Multilingual) */}
               <div>
-                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">DESCRIPTION</label>
+                <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">{t('descriptionGiftLabel')}</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <textarea
                     placeholder="English"
@@ -532,7 +541,7 @@ export default function AdminGiftsPage() {
               {/* Discount & Promo Code */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">DISCOUNT %</label>
+                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">{t('discountPercent')}</label>
                   <input
                     type="number"
                     min="0"
@@ -544,7 +553,7 @@ export default function AdminGiftsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">PROMO CODE (Optional)</label>
+                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">{t('promoCodeOptional')}</label>
                   <input
                     type="text"
                     placeholder="GIFT20-ABC123"
@@ -558,7 +567,7 @@ export default function AdminGiftsPage() {
               {/* Display Order & Active Status */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">DISPLAY ORDER</label>
+                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">{t('displayOrder')}</label>
                   <input
                     type="number"
                     min="0"
@@ -569,7 +578,7 @@ export default function AdminGiftsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">STATUS</label>
+                  <label className="block text-xs sm:text-sm font-bold text-purple-400 mb-2">{t('statusGiftLabel')}</label>
                   <label className="flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 bg-black/50 border-2 border-gray-700 rounded-lg cursor-pointer">
                     <input
                       type="checkbox"
@@ -577,7 +586,7 @@ export default function AdminGiftsPage() {
                       onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                       className="w-4 h-4 sm:w-5 sm:h-5"
                     />
-                    <span className="text-white font-bold text-sm sm:text-base">Active</span>
+                    <span className="text-white font-bold text-sm sm:text-base">{t('activeGiftLabel')}</span>
                   </label>
                 </div>
               </div>
@@ -589,13 +598,13 @@ export default function AdminGiftsPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors text-sm sm:text-base"
                 >
-                  CANCEL
+                  {t('cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg transition-all text-sm sm:text-base"
                 >
-                  {editingGift ? 'UPDATE GIFT' : 'CREATE GIFT'}
+                  {editingGift ? t('updateGift') : t('createGiftSubmit')}
                 </button>
               </div>
             </form>

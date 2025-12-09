@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -28,6 +29,7 @@ interface Booking {
 
 export default function BookingsManagement() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
@@ -47,7 +49,7 @@ export default function BookingsManagement() {
 
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'ADMIN') {
-      toast.error('Accès non autorisé');
+      toast.error(t('accessDenied'));
       router.push('/');
       return;
     }
@@ -83,7 +85,7 @@ export default function BookingsManagement() {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Erreur de chargement');
+      toast.error(t('loadingError'));
     } finally {
       setLoading(false);
     }
@@ -111,14 +113,14 @@ export default function BookingsManagement() {
 
       const data = await response.json();
       if (!data.errors) {
-        toast.success('Statut mis à jour!');
+        toast.success(t('statusUpdated'));
         fetchBookings(token!);
         if (selectedBooking?.id === id) {
           setSelectedBooking({ ...selectedBooking, status: newStatus });
         }
       }
     } catch (error) {
-      toast.error('Erreur de mise à jour');
+      toast.error(t('loadingError'));
     }
   };
 
@@ -248,9 +250,9 @@ export default function BookingsManagement() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-black text-white mb-2">
-              GESTION <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-burgundy-500">RÉSERVATIONS</span>
+              {t('bookingsManagement')}
             </h1>
-            <p className="text-gray-400">Gérer toutes les réservations</p>
+            <p className="text-gray-400">{t('manageAllBookings')}</p>
           </div>
 
           {/* View Toggle */}
@@ -263,7 +265,7 @@ export default function BookingsManagement() {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              📋 Liste
+              📋 {t('list')}
             </button>
             <button
               onClick={() => setViewMode('calendar')}
@@ -273,7 +275,7 @@ export default function BookingsManagement() {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              📅 Calendrier
+              📅 {t('calendar')}
             </button>
           </div>
         </div>
@@ -281,10 +283,10 @@ export default function BookingsManagement() {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { label: 'Total', count: bookings.length, color: 'from-blue-600 to-cyan-600' },
-            { label: 'En attente', count: bookings.filter(b => b.status === 'PENDING').length, color: 'from-yellow-600 to-gold-600' },
-            { label: 'Confirmées', count: bookings.filter(b => b.status === 'CONFIRMED').length, color: 'from-green-600 to-emerald-600' },
-            { label: 'Complétées', count: bookings.filter(b => b.status === 'COMPLETED').length, color: 'from-purple-600 to-pink-600' },
+            { label: t('total'), count: bookings.length, color: 'from-blue-600 to-cyan-600' },
+            { label: t('pending'), count: bookings.filter(b => b.status === 'PENDING').length, color: 'from-yellow-600 to-gold-600' },
+            { label: t('confirmed'), count: bookings.filter(b => b.status === 'CONFIRMED').length, color: 'from-green-600 to-emerald-600' },
+            { label: t('completed'), count: bookings.filter(b => b.status === 'COMPLETED').length, color: 'from-purple-600 to-pink-600' },
           ].map((stat, i) => (
             <div key={i} className={`bg-gradient-to-br ${stat.color} p-6 rounded-2xl`}>
               <p className="text-white/80 font-bold text-sm mb-1">{stat.label}</p>
@@ -353,23 +355,23 @@ export default function BookingsManagement() {
 
               {/* Legend */}
               <div className="mt-6 pt-6 border-t border-gray-700">
-                <p className="text-gray-400 font-bold mb-3">Légende:</p>
+                <p className="text-gray-400 font-bold mb-3">{t('legend')}</p>
                 <div className="flex flex-wrap gap-4">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-sm text-gray-300">Confirmée</span>
+                    <span className="text-sm text-gray-300">{t('confirmed')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <span className="text-sm text-gray-300">En attente</span>
+                    <span className="text-sm text-gray-300">{t('pending')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-blue-500" />
-                    <span className="text-sm text-gray-300">Complétée</span>
+                    <span className="text-sm text-gray-300">{t('completed')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <span className="text-sm text-gray-300">Annulée</span>
+                    <span className="text-sm text-gray-300">{t('cancelled')}</span>
                   </div>
                 </div>
               </div>
@@ -378,7 +380,7 @@ export default function BookingsManagement() {
             {/* Selected Date Info */}
             <div className="bg-gray-900 border-2 border-gold-500/20 rounded-2xl p-6">
               <h3 className="text-xl font-black text-white mb-4">
-                {selectedDate ? formatDate(selectedDate.toISOString()) : 'Sélectionnez une date'}
+                {selectedDate ? formatDate(selectedDate.toISOString()) : t('selectDate')}
               </h3>
 
               {selectedDate && (
@@ -386,7 +388,7 @@ export default function BookingsManagement() {
                   {getBookingsForDate(selectedDate).length === 0 ? (
                     <div className="text-center py-8">
                       <span className="text-6xl mb-3 block">📭</span>
-                      <p className="text-gray-400">Aucune réservation</p>
+                      <p className="text-gray-400">{t('noBookings')}</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -419,34 +421,34 @@ export default function BookingsManagement() {
               {/* Booking Details */}
               {selectedBooking && (
                 <div className="mt-6 pt-6 border-t border-gray-700">
-                  <h4 className="text-lg font-black text-white mb-4">Détails de la réservation</h4>
+                  <h4 className="text-lg font-black text-white mb-4">{t('bookingDetails')}</h4>
                   <div className="space-y-3">
                     <div>
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Client</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('client')}</p>
                       <p className="text-white font-bold">{selectedBooking.user.full_name}</p>
                       <p className="text-sm text-gray-400">{selectedBooking.user.email}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Véhicule</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('vehicle')}</p>
                       <p className="text-white font-bold">{selectedBooking.car.brand} {selectedBooking.car.model}</p>
                     </div>
                     {selectedBooking.flight_number && (
                       <div>
-                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">✈️ Numéro de Vol</p>
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">✈️ {t('flightNumber')}</p>
                         <p className="text-white font-bold">{selectedBooking.flight_number}</p>
                       </div>
                     )}
                     <div>
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Période</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('period')}</p>
                       <p className="text-white">{formatDate(selectedBooking.start_date)}</p>
                       <p className="text-gray-400 text-sm">→ {formatDate(selectedBooking.end_date)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Prix Total</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('totalPriceLabel')}</p>
                       <p className="text-2xl font-black text-gold-500">${selectedBooking.total_price}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Changer le statut</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('changeStatus')}</p>
                       <select
                         value={selectedBooking.status}
                         onChange={(e) => updateBookingStatus(selectedBooking.id, e.target.value)}
@@ -480,7 +482,7 @@ export default function BookingsManagement() {
                       : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
                 >
-                  {status === 'ALL' ? 'TOUTES' : status}
+                  {status === 'ALL' ? t('allBookings') : status}
                 </button>
               ))}
             </div>
@@ -555,7 +557,7 @@ export default function BookingsManagement() {
               {filteredBookings.length === 0 && (
                 <div className="text-center py-20">
                   <span className="text-8xl mb-4 block">📅</span>
-                  <p className="text-2xl text-gray-400">Aucune réservation trouvée</p>
+                  <p className="text-2xl text-gray-400">{t('noBookingsFound')}</p>
                 </div>
               )}
             </div>
@@ -565,7 +567,7 @@ export default function BookingsManagement() {
               {filteredBookings.length === 0 ? (
                 <div className="bg-gray-900 border-2 border-gold-500/20 rounded-2xl p-8 text-center">
                   <span className="text-6xl mb-4 block">📅</span>
-                  <p className="text-xl text-gray-400">Aucune réservation trouvée</p>
+                  <p className="text-xl text-gray-400">{t('noBookingsFound')}</p>
                 </div>
               ) : (
                 filteredBookings.map((booking) => (
@@ -576,7 +578,7 @@ export default function BookingsManagement() {
                     {/* Header - ID and Status */}
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">Réservation</p>
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('booking')}</p>
                         <p className="text-white font-black text-lg">#{booking.id}</p>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(booking.status)}`}>
@@ -586,28 +588,28 @@ export default function BookingsManagement() {
 
                     {/* Client Info */}
                     <div className="border-t border-gray-800 pt-3">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Client</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('client')}</p>
                       <p className="text-white font-bold">{booking.user.full_name}</p>
                       <p className="text-gray-400 text-sm">{booking.user.email}</p>
                     </div>
 
                     {/* Vehicle Info */}
                     <div className="border-t border-gray-800 pt-3">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Véhicule</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('vehicle')}</p>
                       <p className="text-white font-bold">{booking.car.brand} {booking.car.model}</p>
                     </div>
 
                     {/* Flight Number - only show if exists */}
                     {booking.flight_number && (
                       <div className="border-t border-gray-800 pt-3">
-                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">✈️ Numéro de Vol</p>
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">✈️ {t('flightNumber')}</p>
                         <p className="text-white font-bold">{booking.flight_number}</p>
                       </div>
                     )}
 
                     {/* Dates */}
                     <div className="border-t border-gray-800 pt-3">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Période</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('period')}</p>
                       <div className="flex items-center gap-2">
                         <p className="text-white">{formatDate(booking.start_date)}</p>
                         <span className="text-gray-400">→</span>
@@ -617,13 +619,13 @@ export default function BookingsManagement() {
 
                     {/* Price */}
                     <div className="border-t border-gray-800 pt-3">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Prix Total</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('totalPriceLabel')}</p>
                       <p className="text-gold-500 font-black text-2xl">${booking.total_price}</p>
                     </div>
 
                     {/* Action - Status Change */}
                     <div className="border-t border-gray-800 pt-3">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-2">Changer le statut</p>
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-2">{t('changeStatus')}</p>
                       <select
                         value={booking.status}
                         onChange={(e) => updateBookingStatus(booking.id, e.target.value)}

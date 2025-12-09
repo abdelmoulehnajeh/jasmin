@@ -1,8 +1,0 @@
-{
-  "/dashboard/page": "app/dashboard/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/bookings/page": "app/admin/bookings/page.js",
-  "/admin/gifts/page": "app/admin/gifts/page.js",
-  "/admin/settings/page": "app/admin/settings/page.js",
-  "/api/graphql/route": "app/api/graphql/route.js"
-}

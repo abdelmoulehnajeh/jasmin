@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 interface Car {
@@ -18,6 +19,7 @@ interface Car {
 
 export default function CarsManagement() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -44,7 +46,7 @@ export default function CarsManagement() {
 
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'ADMIN') {
-      toast.error('Accès non autorisé');
+      toast.error(t('accessDenied'));
       router.push('/');
       return;
     }
@@ -77,7 +79,7 @@ export default function CarsManagement() {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Erreur de chargement');
+      toast.error(t('loadingError'));
     } finally {
       setLoading(false);
     }
@@ -120,7 +122,7 @@ export default function CarsManagement() {
 
       const data = await response.json();
       if (!data.errors) {
-        toast.success(editingCar ? 'Voiture modifiée!' : 'Voiture ajoutée!');
+        toast.success(editingCar ? t('carModified') : t('carAdded'));
         setShowAddModal(false);
         setEditingCar(null);
         setFormData({ brand: '', model: '', year: new Date().getFullYear(), price_per_day: 0, description: '', gallery: [] });
@@ -129,13 +131,13 @@ export default function CarsManagement() {
         toast.error(data.errors[0].message);
       }
     } catch (error) {
-      toast.error('Erreur');
+      toast.error(t('loadingError'));
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer cette voiture?')) return;
-    
+    if (!confirm(t('confirmDelete'))) return;
+
     const token = localStorage.getItem('token');
     try {
       const mutation = `mutation DeleteCar($id: String!) { deleteCar(id: $id) }`;
@@ -176,7 +178,10 @@ export default function CarsManagement() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        <div className="text-center">
+          <div className="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white font-bold text-xl">{t('loadingText')}</p>
+        </div>
       </div>
     );
   }
@@ -184,15 +189,15 @@ export default function CarsManagement() {
   return (
     <AdminLayout userName={user?.full_name} userRole={user?.role}>
       <Toaster position="top-right" />
-      
+
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-black text-white mb-2">
-              GESTION <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">VOITURES</span>
+              {t('carsManagement')}
             </h1>
-            <p className="text-gray-400">Gérer votre flotte de véhicules</p>
+            <p className="text-gray-400">{t('manageYourFleet')}</p>
           </div>
           <button
             onClick={() => {
@@ -203,7 +208,7 @@ export default function CarsManagement() {
             className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-black rounded-xl transform hover:scale-105 transition-all flex items-center space-x-2"
           >
             <span className="text-2xl">➕</span>
-            <span>AJOUTER VOITURE</span>
+            <span>{t('addCarBtn')}</span>
           </button>
         </div>
 
@@ -221,12 +226,11 @@ export default function CarsManagement() {
               <div className="p-6">
                 <h3 className="text-2xl font-black text-white mb-2">{car.brand} {car.model}</h3>
                 <div className="space-y-2 mb-4">
-                  <p className="text-gray-400"><span className="font-bold">Année:</span> {car.year}</p>
-                  <p className="text-orange-500 text-xl font-bold">${car.price_per_day}/jour</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                    car.status === 'AVAILABLE' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
-                  }`}>
-                    {car.status === 'AVAILABLE' ? 'DISPONIBLE' : 'RÉSERVÉE'}
+                  <p className="text-gray-400"><span className="font-bold">{t('yearText')}:</span> {car.year}</p>
+                  <p className="text-orange-500 text-xl font-bold">${car.price_per_day}/{t('perDayText')}</p>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${car.status === 'AVAILABLE' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                    }`}>
+                    {car.status === 'AVAILABLE' ? t('availableLabel').toUpperCase() : t('booking').toUpperCase()}
                   </span>
                 </div>
                 <div className="flex space-x-2">
@@ -234,13 +238,13 @@ export default function CarsManagement() {
                     onClick={() => handleEdit(car)}
                     className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors"
                   >
-                    ✏️ Modifier
+                    ✏️ {t('editBtn')}
                   </button>
                   <button
                     onClick={() => handleDelete(car.id)}
                     className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors"
                   >
-                    🗑️ Supprimer
+                    🗑️ {t('deleteBtn')}
                   </button>
                 </div>
               </div>
@@ -251,7 +255,7 @@ export default function CarsManagement() {
         {cars.length === 0 && (
           <div className="text-center py-20">
             <span className="text-8xl mb-4 block">🚗</span>
-            <p className="text-2xl text-gray-400">Aucune voiture. Ajoutez-en une!</p>
+            <p className="text-2xl text-gray-400">{t('noCarsYet')}</p>
           </div>
         )}
       </div>
@@ -261,12 +265,12 @@ export default function CarsManagement() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
           <div className="bg-gray-900 border-2 border-orange-500 rounded-2xl p-8 max-w-2xl w-full">
             <h2 className="text-3xl font-black text-white mb-6">
-              {editingCar ? 'MODIFIER' : 'AJOUTER'} VOITURE
+              {editingCar ? t('modifyBtn') : t('addBtn')} {t('totalCars')}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-orange-500 font-bold mb-2">Marque</label>
+                  <label className="block text-orange-500 font-bold mb-2">{t('brandLabel')}</label>
                   <input
                     type="text"
                     value={formData.brand}
@@ -277,7 +281,7 @@ export default function CarsManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-orange-500 font-bold mb-2">Modèle</label>
+                  <label className="block text-orange-500 font-bold mb-2">{t('modelLabel')}</label>
                   <input
                     type="text"
                     value={formData.model}
@@ -290,7 +294,7 @@ export default function CarsManagement() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-orange-500 font-bold mb-2">Année</label>
+                  <label className="block text-orange-500 font-bold mb-2">{t('yearLabel')}</label>
                   <input
                     type="number"
                     value={formData.year}
@@ -300,7 +304,7 @@ export default function CarsManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-orange-500 font-bold mb-2">Prix/Jour ($)</label>
+                  <label className="block text-orange-500 font-bold mb-2">{t('pricePerDayLabel')}</label>
                   <input
                     type="number"
                     value={formData.price_per_day}
@@ -311,48 +315,93 @@ export default function CarsManagement() {
                 </div>
               </div>
               <div>
-                <label className="block text-orange-500 font-bold mb-2">URL Image</label>
-                <p className="text-sm text-gray-400 mb-2">Upload multiple photos — stored as base64 in DB. First photo used as main image.</p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={async (e) => {
-                    const files = e.target.files;
-                    if (!files) return;
-                    const arr: string[] = [];
-                    for (let i = 0; i < files.length; i++) {
-                      const file = files[i];
-                      const reader = new FileReader();
-                      const dataUrl = await new Promise<string>((res) => {
-                        reader.onload = () => res(reader.result as string);
-                        reader.readAsDataURL(file);
-                      });
-                      arr.push(dataUrl);
-                    }
-                    setFormData({ ...formData, gallery: [...(formData.gallery || []), ...arr] });
-                  }}
-                  className="w-full"
-                />
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {(formData.gallery || []).map((g, idx) => (
-                    <div key={idx} className="relative w-24 h-16 rounded overflow-hidden border-2 border-gray-700">
-                      <img src={g} className="w-full h-full object-cover" />
-                      <button type="button" onClick={() => {
-                        const newGallery = (formData.gallery || []).filter((_, i) => i !== idx);
-                        setFormData({ ...formData, gallery: newGallery });
-                      }} className="absolute -top-2 -right-2 bg-red-600 rounded-full w-6 h-6 text-xs flex items-center justify-center">×</button>
-                    </div>
-                  ))}
+                <label className="block text-orange-500 font-bold mb-2">{t('imageUrl')}</label>
+                <div className="bg-gray-800 p-4 rounded-xl border-2 border-dashed border-gray-600 hover:border-orange-500 transition-colors">
+                  <p className="text-sm text-gray-400 mb-4 text-center">{t('uploadMultiplePhotos')}</p>
+                  <div className="flex justify-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={async (e) => {
+                        const files = e.target.files;
+                        if (!files) return;
+                        const arr: string[] = [];
+                        for (let i = 0; i < files.length; i++) {
+                          const file = files[i];
+                          if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                            toast.error(`File ${file.name} is too large`);
+                            continue;
+                          }
+                          const reader = new FileReader();
+                          const dataUrl = await new Promise<string>((res) => {
+                            reader.onload = () => res(reader.result as string);
+                            reader.readAsDataURL(file);
+                          });
+                          arr.push(dataUrl);
+                        }
+                        setFormData(prev => ({ ...prev, gallery: [...(prev.gallery || []), ...arr] }));
+                      }}
+                      className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-500/10 file:text-orange-500 hover:file:bg-orange-500/20"
+                    />
+                  </div>
+                </div>
+
+                {/* Gallery Preview */}
+                <div className="mt-4">
+                  <p className="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wider">{t('photos')} ({formData.gallery?.length || 0}) - {t('firstIsCover')}</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {(formData.gallery || []).map((g, idx) => (
+                      <div key={idx} className={`relative group aspect-video rounded-xl overflow-hidden border-2 ${idx === 0 ? 'border-orange-500 shadow-lg shadow-orange-500/20' : 'border-gray-700'}`}>
+                        <img src={g} className="w-full h-full object-cover" />
+
+                        {/* Overlay Actions */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          {idx !== 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newGallery = [...(formData.gallery || [])];
+                                const [moved] = newGallery.splice(idx, 1);
+                                newGallery.unshift(moved);
+                                setFormData({ ...formData, gallery: newGallery });
+                              }}
+                              className="p-2 bg-blue-600 rounded-full hover:bg-blue-500 text-white text-xs font-bold"
+                              title={t('setAsCover')}
+                            >
+                              ★
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newGallery = (formData.gallery || []).filter((_, i) => i !== idx);
+                              setFormData({ ...formData, gallery: newGallery });
+                            }}
+                            className="p-2 bg-red-600 rounded-full hover:bg-red-500 text-white text-xs font-bold"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        {/* Cover Badge */}
+                        {idx === 0 && (
+                          <div className="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                            COVER
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div>
-                <label className="block text-orange-500 font-bold mb-2">Description</label>
+                <label className="block text-orange-500 font-bold mb-2">{t('descriptionLabel')}</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-3 bg-black border-2 border-gray-700 focus:border-orange-500 rounded-lg text-white outline-none"
-                  placeholder="Short description"
+                  placeholder={t('shortDescription')}
                 />
               </div>
               <div className="flex space-x-4 pt-4">
@@ -360,7 +409,7 @@ export default function CarsManagement() {
                   type="submit"
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-black rounded-xl transition-all"
                 >
-                  {editingCar ? 'MODIFIER' : 'AJOUTER'}
+                  {editingCar ? t('modifyBtn') : t('addBtn')}
                 </button>
                 <button
                   type="button"
@@ -370,7 +419,7 @@ export default function CarsManagement() {
                   }}
                   className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-black rounded-xl transition-all"
                 >
-                  ANNULER
+                  {t('cancelBtn')}
                 </button>
               </div>
             </form>

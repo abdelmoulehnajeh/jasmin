@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   userName?: string;
@@ -11,6 +12,7 @@ interface SidebarProps {
 export default function AdminSidebar({ userName = 'Admin', userRole = 'ADMIN' }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -23,45 +25,45 @@ export default function AdminSidebar({ userName = 'Admin', userRole = 'ADMIN' }:
   const menuItems = [
     {
       icon: '📊',
-      label: 'Dashboard',
+      label: t('dashboardTitle'),
       path: '/admin',
-      description: 'Vue d\'ensemble'
+      description: t('realtimeOverview')
     },
     {
       icon: '🎬',
-      label: 'Hero Video',
+      label: t('heroSettings'),
       path: '/admin/hero',
-      description: 'Gérer vidéo accueil'
+      description: t('manageHeroVideo')
     },
     {
       icon: '🚗',
-      label: 'Voitures',
+      label: t('totalCars'),
       path: '/admin/cars',
-      description: 'Gestion flotte'
+      description: t('manageYourFleet')
     },
     {
       icon: '📅',
-      label: 'Réservations',
+      label: t('totalBookings'),
       path: '/admin/bookings',
-      description: 'Gérer bookings'
+      description: t('manageAllBookings')
     },
     {
       icon: '🎁',
-      label: 'Cadeaux',
+      label: t('giftOffers'),
       path: '/admin/gifts',
-      description: 'Gérer offres'
+      description: t('manageGifts')
     },
     {
       icon: '👥',
-      label: 'Utilisateurs',
+      label: t('totalUsers'),
       path: '/admin/users',
-      description: 'Gérer clients'
+      description: t('manageAllUsers')
     },
     {
       icon: '⚙️',
-      label: 'Paramètres',
+      label: t('settingsTitle'),
       path: '/admin/settings',
-      description: 'Configuration'
+      description: t('platformConfiguration')
     },
   ];
 
@@ -174,7 +176,7 @@ export default function AdminSidebar({ userName = 'Admin', userRole = 'ADMIN' }:
             className="w-full flex items-center space-x-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-colors text-sm sm:text-base"
           >
             <span className="text-xl sm:text-2xl">🚪</span>
-            {!isCollapsed && <span>Déconnexion</span>}
+            {!isCollapsed && <span>{t('logout')}</span>}
           </button>
         </div>
       </aside>

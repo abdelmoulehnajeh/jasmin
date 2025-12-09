@@ -408,15 +408,25 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
                 </div>
               </div>
 
-              <button
-                onClick={spinWheel}
-                disabled={spinning}
-                className={`px-8 py-4 bg-[#FFC800] hover:bg-[#E6B500] text-black font-bold text-lg uppercase tracking-wider transition-all transform hover:scale-105 ${
-                  spinning ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {spinning ? t('spinning') : t('spinNow')}
-              </button>
+              <div className="flex flex-col gap-3 justify-center items-center">
+                <button
+                  onClick={spinWheel}
+                  disabled={spinning}
+                  className={`w-full sm:w-auto px-8 py-4 bg-[#FFC800] hover:bg-[#E6B500] text-black font-bold text-lg uppercase tracking-wider transition-all transform hover:scale-105 ${spinning ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                >
+                  {spinning ? t('spinning') : t('spinNow')}
+                </button>
+
+                {!spinning && (
+                  <button
+                    onClick={() => setStep('register')}
+                    className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-sm sm:text-base mt-2"
+                  >
+                    ← {t('back')}
+                  </button>
+                )}
+              </div>
             </div>
           )}
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 interface DashboardStats {
@@ -23,6 +24,7 @@ interface User {
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function AdminDashboard() {
 
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'ADMIN') {
-      toast.error('Accès non autorisé');
+      toast.error(t('accessDenied'));
       router.push('/');
       return;
     }
@@ -82,7 +84,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white font-bold text-xl">CHARGEMENT...</p>
+          <p className="text-white font-bold text-xl">{t('loadingText')}</p>
         </div>
       </div>
     );
@@ -96,19 +98,19 @@ export default function AdminDashboard() {
         {/* Header */}
         <div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">
-            TABLEAU DE <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-burgundy-500">BORD</span>
+            {t('dashboardTitle')}
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-400">Vue d'ensemble en temps réel</p>
+          <p className="text-base sm:text-lg lg:text-xl text-gray-400">{t('realtimeOverview')}</p>
         </div>
 
         {/* Stats Grid */}
         {stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
-              { label: 'Voitures', value: stats.totalCars, sublabel: `${stats.availableCars} disponibles`, gradient: 'from-blue-600 to-cyan-600', icon: '🚗', path: '/admin/cars' },
-              { label: 'Réservations', value: stats.totalBookings, sublabel: `${stats.activeBookings} actives`, gradient: 'from-green-600 to-emerald-600', icon: '📅', path: '/admin/bookings' },
-              { label: 'Utilisateurs', value: stats.totalUsers, sublabel: 'Clients total', gradient: 'from-purple-600 to-pink-600', icon: '👥', path: '/admin/users' },
-              { label: 'Revenu', value: `$${stats.totalRevenue.toFixed(0)}`, sublabel: 'Total reçu', gradient: 'from-gold-600 to-burgundy-600', icon: '💰' },
+              { label: t('totalCars'), value: stats.totalCars, sublabel: `${stats.availableCars} ${t('availableLabel')}`, gradient: 'from-blue-600 to-cyan-600', icon: '🚗', path: '/admin/cars' },
+              { label: t('totalBookings'), value: stats.totalBookings, sublabel: `${stats.activeBookings} ${t('activeLabel')}`, gradient: 'from-green-600 to-emerald-600', icon: '📅', path: '/admin/bookings' },
+              { label: t('totalUsers'), value: stats.totalUsers, sublabel: t('totalClients'), gradient: 'from-purple-600 to-pink-600', icon: '👥', path: '/admin/users' },
+              { label: t('revenue'), value: `$${stats.totalRevenue.toFixed(0)}`, sublabel: t('totalReceived'), gradient: 'from-gold-600 to-burgundy-600', icon: '💰' },
             ].map((stat, i) => (
               <button
                 key={i}

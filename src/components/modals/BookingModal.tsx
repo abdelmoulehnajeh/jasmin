@@ -126,7 +126,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 text-gray-400 hover:text-white transition-colors"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-10 h-10 flex items-center justify-center bg-black/40 hover:bg-red-600 text-white rounded-full transition-colors backdrop-blur-sm shadow-sm border border-white/10"
           >
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6"
@@ -176,19 +176,19 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
 
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <span className="text-gold-300 text-xs sm:text-sm">Brand</span>
+                    <span className="text-gold-300 text-xs sm:text-sm">{t('brandLabel') || 'Brand'}</span>
                     <p className="text-white font-semibold text-sm sm:text-base">{car.brand}</p>
                   </div>
                   <div>
-                    <span className="text-gold-300 text-xs sm:text-sm">Model</span>
+                    <span className="text-gold-300 text-xs sm:text-sm">{t('modelLabel') || 'Model'}</span>
                     <p className="text-white font-semibold text-sm sm:text-base">{car.model}</p>
                   </div>
                   <div>
-                    <span className="text-gold-300 text-xs sm:text-sm">Year</span>
+                    <span className="text-gold-300 text-xs sm:text-sm">{t('yearLabel') || 'Year'}</span>
                     <p className="text-white font-semibold text-sm sm:text-base">{car.year}</p>
                   </div>
                   <div>
-                    <span className="text-[#FFC800] text-xs sm:text-sm">Price</span>
+                    <span className="text-[#FFC800] text-xs sm:text-sm">{t('priceLabel')}</span>
                     <p className="text-gray-300 text-xs">{t('startingFrom')}</p>
                     <p className="text-[#FFC800] font-bold text-lg sm:text-xl">
                       DT {car.price_per_day}/{t('perDay')}
@@ -196,7 +196,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                   </div>
                 </div>
                 <div className="mt-3">
-                  <span className="text-gold-300 text-xs sm:text-sm">Rating</span>
+                  <span className="text-gold-300 text-xs sm:text-sm">{t('rating') || 'Rating'}</span>
                   <p className="text-white font-semibold text-sm sm:text-base">⭐ {car.average_rating.toFixed(1)} ({car.total_ratings})</p>
                 </div>
               </div>
@@ -255,31 +255,31 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                     <div className="bg-gray-700 rounded-lg p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                       {car.specs.engine && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Engine:</span>
+                          <span className="text-gray-400">{t('engine') || 'Engine'}:</span>
                           <span className="text-white">{car.specs.engine}</span>
                         </div>
                       )}
                       {car.specs.transmission && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Transmission:</span>
+                          <span className="text-gray-400">{t('transmission') || 'Transmission'}:</span>
                           <span className="text-white">{car.specs.transmission}</span>
                         </div>
                       )}
                       {car.specs.fuelType && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Fuel Type:</span>
+                          <span className="text-gray-400">{t('fuelType') || 'Fuel Type'}:</span>
                           <span className="text-white">{car.specs.fuelType}</span>
                         </div>
                       )}
                       {car.specs.seats && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Seats:</span>
+                          <span className="text-gray-400">{t('seats') || 'Seats'}:</span>
                           <span className="text-white">{car.specs.seats}</span>
                         </div>
                       )}
                       {car.specs.color && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Color:</span>
+                          <span className="text-gray-400">{t('color') || 'Color'}:</span>
                           <span className="text-white">{car.specs.color}</span>
                         </div>
                       )}
@@ -324,7 +324,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                 </div>
 
                 <div className="mt-4 sm:mt-6">
-                  <label className="block text-gray-400 mb-2 text-sm sm:text-base">{t('notes')} (Optional)</label>
+                  <label className="block text-gray-400 mb-2 text-sm sm:text-base">{t('notes')} ({t('optional')})</label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -337,7 +337,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                 {car.service_type === 'transfer' && (
                   <div className="mt-4 sm:mt-6">
                     <label className="block text-gray-400 mb-2 text-sm sm:text-base">
-                      ✈️ Flight Number (Optional)
+                      ✈️ {t('flightNumber') || 'Flight Number'} ({t('optional') || 'Optional'})
                     </label>
                     <input
                       type="text"
@@ -346,7 +346,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                       placeholder="e.g., TU123, AF456"
                       className="w-full bg-gray-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg focus:ring-2 focus:ring-[#FFC800] outline-none text-sm sm:text-base"
                     />
-                    <p className="text-gray-500 text-xs mt-1">Enter your flight number for tracking purposes</p>
+                    <p className="text-gray-500 text-xs mt-1">{t('enterFlightNumber') || 'Enter your flight number for tracking purposes'}</p>
                   </div>
                 )}
 
@@ -354,11 +354,11 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                   <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-[#FFC800]/20 border-2 border-[#FFC800] rounded-lg">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
                       <div>
-                        <span className="text-gray-300 text-sm sm:text-base">Duration:</span>
-                        <span className="text-white font-bold ml-2">24 Hours (1 Day)</span>
+                        <span className="text-gray-300 text-sm sm:text-base">{t('duration') || 'Duration'}:</span>
+                        <span className="text-white font-bold ml-2">24 {t('hours') || 'Hours'} (1 {t('day') || 'Day'})</span>
                       </div>
                       <div>
-                        <span className="text-gray-300 text-sm sm:text-base">Total Price:</span>
+                        <span className="text-gray-300 text-sm sm:text-base">{t('totalPrice') || 'Total Price'}:</span>
                         <span className="text-[#FFC800] font-bold text-xl sm:text-2xl ml-2">
                           DT {totalPrice.toFixed(2)}
                         </span>
@@ -375,7 +375,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
             <div className="w-full sm:w-auto">
               {startDate && (
                 <div className="text-left sm:text-right">
-                  <span className="text-gray-300 text-sm sm:text-base">Total: </span>
+                  <span className="text-gray-300 text-sm sm:text-base">{t('total') || 'Total'}: </span>
                   <span className="text-[#FFC800] font-bold text-2xl sm:text-3xl">
                     DT {totalPrice.toFixed(2)}
                   </span>
@@ -389,16 +389,34 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
               >
                 {t('cancel')}
               </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!startDate || !pickupTime}
-                className={`flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base ${startDate && pickupTime
-                  ? 'bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black shadow-lg hover:shadow-xl'
-                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  }`}
-              >
-                {t('confirmBooking')}
-              </button>
+
+              {step === 'details' ? (
+                <button
+                  onClick={() => setStep('booking')}
+                  className="flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black rounded-lg font-bold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base"
+                >
+                  {t('nextStep')} →
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setStep('details')}
+                    className="flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-bold transition-all text-sm sm:text-base"
+                  >
+                    ← {t('back')}
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={!startDate || !pickupTime}
+                    className={`flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base ${startDate && pickupTime
+                      ? 'bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black shadow-lg hover:shadow-xl'
+                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }`}
+                  >
+                    {t('confirmBooking')}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

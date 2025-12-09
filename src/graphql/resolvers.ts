@@ -119,7 +119,7 @@ export const resolvers = {
 
       const result = await query(
         `SELECT b.*, 
-                c.name, c.brand, c.model, c.image_base64, c.price_per_day
+                c.name, c.brand, c.model, c.image_base64, c.price_per_day, c.gallery
          FROM bookings b
          JOIN cars c ON b.car_id = c.id
          WHERE b.user_id = $1
@@ -139,6 +139,7 @@ export const resolvers = {
           model: booking.model,
           image_base64: booking.image_base64,
           price_per_day: booking.price_per_day,
+          gallery: parseJsonbArray(booking.gallery),
         }
       }));
     },
@@ -148,7 +149,7 @@ export const resolvers = {
 
       const result = await query(
         `SELECT b.*, 
-                c.name, c.brand, c.model, c.image_base64, c.price_per_day
+                c.name, c.brand, c.model, c.image_base64, c.price_per_day, c.gallery
          FROM bookings b
          JOIN cars c ON b.car_id = c.id
          WHERE b.id = $1 AND b.user_id = $2`,
@@ -167,6 +168,7 @@ export const resolvers = {
           model: booking.model,
           image_base64: booking.image_base64,
           price_per_day: booking.price_per_day,
+          gallery: parseJsonbArray(booking.gallery),
         }
       };
     },

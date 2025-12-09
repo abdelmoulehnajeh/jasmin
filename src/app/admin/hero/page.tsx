@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 interface User {
@@ -24,6 +25,7 @@ interface HeroSettings {
 
 export default function HeroSettingsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,7 +48,7 @@ export default function HeroSettingsPage() {
 
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'ADMIN') {
-      toast.error('Accès non autorisé');
+      toast.error(t('accessDenied'));
       router.push('/');
       return;
     }
@@ -93,7 +95,7 @@ export default function HeroSettingsPage() {
       }
     } catch (error) {
       console.error('Error fetching hero settings:', error);
-      toast.error('Erreur lors du chargement des paramètres');
+      toast.error(t('loadingError'));
     } finally {
       setLoading(false);
     }
@@ -132,10 +134,10 @@ export default function HeroSettingsPage() {
       if (data.errors) {
         toast.error(data.errors[0].message);
       } else {
-        toast.success('Paramètres Hero mis à jour avec succès!');
+        toast.success(t('heroUpdated'));
       }
     } catch (error) {
-      toast.error('Erreur lors de la mise à jour');
+      toast.error(t('loadingError'));
       console.error('Error:', error);
     } finally {
       setSaving(false);
@@ -147,7 +149,7 @@ export default function HeroSettingsPage() {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white font-bold text-xl">CHARGEMENT...</p>
+          <p className="text-white font-bold text-xl">{t('loadingText')}</p>
         </div>
       </div>
     );
@@ -161,9 +163,9 @@ export default function HeroSettingsPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">
-            PARAMÈTRES <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-burgundy-500">HERO</span>
+            {t('heroSettings')}
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-400">Gérer la vidéo et les images de la page d'accueil</p>
+          <p className="text-base sm:text-lg lg:text-xl text-gray-400">{t('manageHeroVideo')}</p>
         </div>
 
         {/* Form */}
@@ -172,10 +174,10 @@ export default function HeroSettingsPage() {
             {/* Video URL */}
             <div>
               <label className="block text-white font-bold text-lg mb-2">
-                URL de la Vidéo <span className="text-red-500">*</span>
+                {t('videoUrl')} <span className="text-red-500">*</span>
               </label>
               <p className="text-gray-400 text-sm mb-3">
-                Entrez l'URL complète de la vidéo hébergée (YouTube, Vimeo, ou lien direct .mp4/.webm)
+                {t('videoUrlRequired')}
               </p>
               <input
                 type="url"
@@ -190,10 +192,10 @@ export default function HeroSettingsPage() {
             {/* Mobile Image URL */}
             <div>
               <label className="block text-white font-bold text-lg mb-2">
-                URL de l'Image Mobile
+                {t('mobileImageUrl')}
               </label>
               <p className="text-gray-400 text-sm mb-3">
-                Image de secours pour les appareils mobiles (optionnel)
+                {t('mobileImageOptional')}
               </p>
               <input
                 type="url"
@@ -207,10 +209,10 @@ export default function HeroSettingsPage() {
             {/* Desktop Image URL */}
             <div>
               <label className="block text-white font-bold text-lg mb-2">
-                URL de l'Image Desktop
+                {t('desktopImageUrl')}
               </label>
               <p className="text-gray-400 text-sm mb-3">
-                Image de secours pour les ordinateurs de bureau (optionnel)
+                {t('desktopImageOptional')}
               </p>
               <input
                 type="url"
@@ -224,10 +226,10 @@ export default function HeroSettingsPage() {
             {/* Title */}
             <div>
               <label className="block text-white font-bold text-lg mb-2">
-                Titre
+                {t('titleHero')}
               </label>
               <p className="text-gray-400 text-sm mb-3">
-                Titre principal de la section hero
+                {t('mainHeroTitle')}
               </p>
               <input
                 type="text"
@@ -241,10 +243,10 @@ export default function HeroSettingsPage() {
             {/* Subtitle */}
             <div>
               <label className="block text-white font-bold text-lg mb-2">
-                Sous-titre
+                {t('subtitleHero')}
               </label>
               <p className="text-gray-400 text-sm mb-3">
-                Sous-titre de la section hero
+                {t('heroSubtitleDesc')}
               </p>
               <textarea
                 value={formData.subtitle}
@@ -259,7 +261,7 @@ export default function HeroSettingsPage() {
           {/* Preview */}
           {formData.video_url && (
             <div className="bg-gray-900 border border-gold-500/20 rounded-2xl p-6 sm:p-8">
-              <h3 className="text-white font-bold text-xl mb-4">Aperçu de la Vidéo</h3>
+              <h3 className="text-white font-bold text-xl mb-4">{t('videoPreview')}</h3>
               <div className="aspect-video bg-black rounded-lg overflow-hidden">
                 {formData.video_url.includes('youtube.com') || formData.video_url.includes('youtu.be') ? (
                   <iframe
@@ -293,14 +295,14 @@ export default function HeroSettingsPage() {
               disabled={saving}
               className="flex-1 py-4 bg-gradient-to-r from-gold-600 to-burgundy-600 hover:from-gold-700 hover:to-burgundy-700 text-white font-black text-lg rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-gold-900/50"
             >
-              {saving ? 'ENREGISTREMENT...' : 'ENREGISTRER LES MODIFICATIONS'}
+              {saving ? t('saving') : t('saveChanges')}
             </button>
             <button
               type="button"
               onClick={() => router.push('/admin')}
               className="px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-bold text-lg rounded-xl transition-all"
             >
-              ANNULER
+              {t('cancelBtn')}
             </button>
           </div>
         </form>
@@ -311,13 +313,13 @@ export default function HeroSettingsPage() {
             <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
-            Conseils d'utilisation
+            {t('usageTips')}
           </h3>
           <ul className="text-blue-300 space-y-2 text-sm">
-            <li>• Pour de meilleures performances, utilisez des vidéos au format .webm ou .mp4</li>
-            <li>• Les vidéos YouTube et Vimeo sont automatiquement converties en iframe</li>
-            <li>• Les images de secours sont affichées si la vidéo ne peut pas être chargée</li>
-            <li>• Recommandé: vidéo de 30-60 secondes, résolution 1920x1080</li>
+            <li>{t('tip1')}</li>
+            <li>{t('tip2')}</li>
+            <li>{t('tip3')}</li>
+            <li>{t('tip4')}</li>
           </ul>
         </div>
       </div>

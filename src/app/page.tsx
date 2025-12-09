@@ -410,8 +410,8 @@ export default function LandingPage() {
                   {[
                     { label: t('weddingCars'), href: '#services' },
                     { label: t('airportTransfers'), href: '#services' },
-                    { label: t('ourFleetMenu'), href: '#fleet' },
-                    { label: t('getQuoteMenu'), href: '#quote-form' }
+                    { label: t('ourFleetMenu'), href: '#fleet' }
+                   
                   ].map((item, i) => (
                     <li key={i}>
                       <a href={item.href}
@@ -428,7 +428,7 @@ export default function LandingPage() {
                   {[
                     { label: t('aboutUs'), href: '#' },
                     { label: t('contactUs'), href: '#' },
-                    { label: t('driverRecruitment'), href: '/login' },
+                   
                     { label: t('businessAccounts'), href: '/login' }
                   ].map((item, i) => (
                     <li key={i}>
