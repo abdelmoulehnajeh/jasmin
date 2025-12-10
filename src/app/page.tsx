@@ -474,7 +474,7 @@ export default function LandingPage() {
                 <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
                 </svg>
-                <span className="text-xs font-bold text-black uppercase">BACK</span>
+                <span className="text-xs font-bold text-black uppercase">{t('menuBack')}</span>
               </button>
             </div>
 
@@ -483,7 +483,7 @@ export default function LandingPage() {
 
               {/* Services */}
               <div className="mb-6">
-                <h3 className="text-[#FFC800] text-xs font-bold uppercase mb-3 tracking-wider">SERVICES</h3>
+                <h3 className="text-[#FFC800] text-xs font-bold uppercase mb-3 tracking-wider">{t('menuServices')}</h3>
                 <div className="space-y-1">
                   <button
                     onClick={(e) => {
@@ -534,7 +534,7 @@ export default function LandingPage() {
 
               {/* Company */}
               <div className="mb-6">
-                <h3 className="text-[#FFC800] text-xs font-bold uppercase mb-3 tracking-wider">COMPANY</h3>
+                <h3 className="text-[#FFC800] text-xs font-bold uppercase mb-3 tracking-wider">{t('menuCompany')}</h3>
                 <div className="space-y-1">
                   <button
                     onClick={(e) => {
@@ -566,7 +566,7 @@ export default function LandingPage() {
 
               {/* Social */}
               <div className="border-t border-[#FFC800]/30 pt-4 mt-6">
-                <h3 className="text-[#FFC800] text-xs font-bold uppercase mb-3 tracking-wider">FOLLOW US</h3>
+                <h3 className="text-[#FFC800] text-xs font-bold uppercase mb-3 tracking-wider">{t('menuFollowUs')}</h3>
                 <div className="flex gap-3">
                   <a href="tel:+21622420360" className="p-2 bg-[#1a1a1a] hover:bg-[#FFC800] rounded-md transition-all">
                     <svg className="w-5 h-5 text-[#FFC800]" fill="currentColor" viewBox="0 0 24 24">

@@ -45,6 +45,10 @@ const resources = {
       statSmoothLabel: 'EXPERIENCE',
 
       // Menu Items
+      menuBack: 'BACK',
+      menuServices: 'SERVICES',
+      menuCompany: 'COMPANY',
+      menuFollowUs: 'FOLLOW US',
       weddingCars: 'Wedding Cars',
       airportTransfers: 'Airport Transfers',
       ourFleetMenu: 'Our Fleet',
@@ -468,6 +472,10 @@ const resources = {
       statSmoothLabel: 'EXPÉRIENCE',
 
       // Menu Items
+      menuBack: 'RETOUR',
+      menuServices: 'SERVICES',
+      menuCompany: 'ENTREPRISE',
+      menuFollowUs: 'SUIVEZ-NOUS',
       weddingCars: 'Voitures de Mariage',
       airportTransfers: 'Transferts Aéroport',
       ourFleetMenu: 'Notre Flotte',
@@ -899,6 +907,10 @@ const resources = {
       statSmoothLabel: 'تجربة',
 
       // Menu Items
+      menuBack: 'رجوع',
+      menuServices: 'الخدمات',
+      menuCompany: 'الشركة',
+      menuFollowUs: 'تابعنا',
       weddingCars: 'سيارات الزفاف',
       airportTransfers: 'نقل المطار',
       ourFleetMenu: 'أسطولنا',
@@ -1322,6 +1334,10 @@ const resources = {
       statSmoothLabel: 'ESPERIENZA',
 
       // Menu Items
+      menuBack: 'INDIETRO',
+      menuServices: 'SERVIZI',
+      menuCompany: 'AZIENDA',
+      menuFollowUs: 'SEGUICI',
       weddingCars: 'Auto da Matrimonio',
       airportTransfers: 'Transfer Aeroportuali',
       ourFleetMenu: 'La Nostra Flotta',
