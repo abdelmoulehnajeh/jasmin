@@ -61,7 +61,7 @@ export default function LanguageSelector() {
       {/* Button */}
       <button
         onClick={() => {
-          console.log('Button clicked, isOpen will be:', !isOpen);
+          // console.log('Button clicked, isOpen will be:', !isOpen);
           setIsOpen(!isOpen);
         }}
         style={{
@@ -92,7 +92,7 @@ export default function LanguageSelector() {
           {/* Backdrop */}
           <div
             onClick={() => {
-              console.log('Backdrop clicked, closing dropdown');
+              // console.log('Backdrop clicked, closing dropdown');
               setIsOpen(false);
             }}
             style={{

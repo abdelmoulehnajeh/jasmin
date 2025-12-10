@@ -60,7 +60,7 @@ export default function LandingPage() {
           translations['ar'] ||
           fallback;
 
-        console.log(`Translation for ${i18n.language}:`, translated, 'from:', translations);
+        // console.log(`Translation for ${i18n.language}:`, translated, 'from:', translations);
         return translated;
       }
 
@@ -238,7 +238,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log('🌍 Fetching data for language:', i18n.language);
+      // console.log('🌍 Fetching data for language:', i18n.language);
       setLoading(true);
       try {
         const response = await fetch('/api/graphql', {
@@ -262,9 +262,9 @@ export default function LandingPage() {
         const result = await response.json();
         if (result.data?.cars) setCars(result.data.cars);
         if (result.data?.heroSettings) {
-          console.log('Hero settings received:', result.data.heroSettings);
-          console.log('Title:', result.data.heroSettings.title);
-          console.log('Subtitle:', result.data.heroSettings.subtitle);
+          // console.log('Hero settings received:', result.data.heroSettings);
+          // console.log('Title:', result.data.heroSettings.title);
+          // console.log('Subtitle:', result.data.heroSettings.subtitle);
           setHeroSettings(result.data.heroSettings);
         }
       } catch (error) {
