@@ -38,12 +38,14 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
   const [notes, setNotes] = useState('');
   const [flightNumber, setFlightNumber] = useState('');
   const [step, setStep] = useState<'details' | 'booking'>('details');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // Build gallery array - use gallery if available, otherwise use main image
+  const galleryImages = (car.gallery && car.gallery.length > 0)
+    ? car.gallery
+    : (car.image_base64 ? [car.image_base64] : []);
 
   if (!isOpen) return null;
-
-  // Fixed duration of 1 day for now since we removed end date
-  const totalDays = 1;
-  const totalPrice = totalDays * car.price_per_day;
 
   const handleSubmit = async () => {
     if (!startDate || !pickupTime) {
@@ -52,6 +54,18 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
     }
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+    // Get active promo code from localStorage
+    let promoCode: string | undefined;
+    try {
+      const storedPromo = localStorage.getItem('activePromoCode');
+      if (storedPromo) {
+        const promoData = JSON.parse(storedPromo);
+        promoCode = promoData.code;
+      }
+    } catch (e) {
+      console.error('Failed to read promo code', e);
+    }
 
     // Construct start date with time
     const [hours, minutes] = pickupTime.split(':').map(Number);
@@ -68,6 +82,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
       end_date: endDateTime.toISOString(),
       notes,
       flight_number: flightNumber || undefined,
+      promo_code: promoCode,
     };
 
     // If user is not logged in, save pending booking and redirect to login
@@ -103,7 +118,14 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
         return;
       }
 
-      toast.success('Booking confirmed!');
+      // Clear used promo code after successful booking
+      if (promoCode) {
+        localStorage.removeItem('activePromoCode');
+        toast.success('Booking confirmed with discount!');
+      } else {
+        toast.success('Booking confirmed!');
+      }
+
       onClose();
       router.push('/dashboard');
     } catch (error) {
@@ -143,19 +165,87 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
 
           {/* Car Header */}
           <div className="p-4 sm:p-6 border-b border-gray-700">
-            <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
-              {/* Car Image */}
-              <div className="w-full md:w-1/3">
-                {car.image_base64 ? (
-                  <img
-                    src={car.image_base64}
-                    alt={nameText}
-                    className="w-full h-40 sm:h-48 object-cover rounded-lg"
-                  />
+            <div className="flex flex-col gap-4 sm:gap-6">
+              {/* Car Image Gallery - Full Width */}
+              <div className="w-full relative">
+                {galleryImages.length > 0 ? (
+                  <div className="relative">
+                    <img
+                      src={galleryImages[selectedImageIndex]}
+                      alt={`${nameText} - Image ${selectedImageIndex + 1}`}
+                      className="w-full h-64 sm:h-80 md:h-96 object-cover rounded-lg"
+                    />
+
+                    {/* Gallery Navigation */}
+                    {galleryImages.length > 1 && (
+                      <>
+                        {/* Previous Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedImageIndex((prev) =>
+                              prev === 0 ? galleryImages.length - 1 : prev - 1
+                            );
+                          }}
+                          className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-[#FFC800] text-white rounded-full p-3 sm:p-4 transition-all shadow-lg hover:scale-110"
+                        >
+                          <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+
+                        {/* Next Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedImageIndex((prev) =>
+                              prev === galleryImages.length - 1 ? 0 : prev + 1
+                            );
+                          }}
+                          className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-[#FFC800] text-white rounded-full p-3 sm:p-4 transition-all shadow-lg hover:scale-110"
+                        >
+                          <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+
+                        {/* Image Counter */}
+                        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm sm:text-base font-bold">
+                          {selectedImageIndex + 1} / {galleryImages.length}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Thumbnail Strip */}
+                    {galleryImages.length > 1 && (
+                      <div className="flex gap-2 sm:gap-3 mt-3 sm:mt-4 overflow-x-auto pb-2">
+                        {galleryImages.map((img, idx) => (
+                          <button
+                            key={idx}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedImageIndex(idx);
+                            }}
+                            className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-lg overflow-hidden border-3 transition-all ${
+                              idx === selectedImageIndex
+                                ? 'border-[#FFC800] border-4 scale-105 shadow-lg'
+                                : 'border-gray-600 border-2 opacity-60 hover:opacity-100 hover:border-[#FFC800]/50'
+                            }`}
+                          >
+                            <img
+                              src={img}
+                              alt={`Thumbnail ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <div className="w-full h-40 sm:h-48 bg-gray-700 rounded-lg flex items-center justify-center">
+                  <div className="w-full h-64 sm:h-80 md:h-96 bg-gray-700 rounded-lg flex items-center justify-center">
                     <svg
-                      className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600"
+                      className="w-16 h-16 sm:w-20 sm:h-20 text-gray-600"
                       fill="none"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -170,7 +260,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
               </div>
 
               {/* Car Details */}
-              <div className="flex-1">
+              <div className="w-full">
                 <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">{car.brand} {car.model}</h2>
                 <p className="text-gray-200 mb-3 sm:mb-4 text-sm sm:text-base">{descriptionText}</p>
 
@@ -212,7 +302,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                 : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
             >
-              {t('details')}
+              {t('ourServicesTab')}
             </button>
             <button
               onClick={() => setStep('booking')}
@@ -350,38 +440,12 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                   </div>
                 )}
 
-                {startDate && (
-                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-[#FFC800]/20 border-2 border-[#FFC800] rounded-lg">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-                      <div>
-                        <span className="text-gray-300 text-sm sm:text-base">{t('duration') || 'Duration'}:</span>
-                        <span className="text-white font-bold ml-2">24 {t('hours') || 'Hours'} (1 {t('day') || 'Day'})</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-300 text-sm sm:text-base">{t('totalPrice') || 'Total Price'}:</span>
-                        <span className="text-[#FFC800] font-bold text-xl sm:text-2xl ml-2">
-                          DT {totalPrice.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="p-4 sm:p-6 border-t border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="w-full sm:w-auto">
-              {startDate && (
-                <div className="text-left sm:text-right">
-                  <span className="text-gray-300 text-sm sm:text-base">{t('total') || 'Total'}: </span>
-                  <span className="text-[#FFC800] font-bold text-2xl sm:text-3xl">
-                    DT {totalPrice.toFixed(2)}
-                  </span>
-                </div>
-              )}
-            </div>
+          <div className="p-4 sm:p-6 border-t border-gray-700 flex justify-end items-center gap-4">
             <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={onClose}

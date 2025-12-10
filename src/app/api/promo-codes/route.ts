@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 
 interface PromoCodeRequest {
   code: string;
@@ -7,9 +8,6 @@ interface PromoCodeRequest {
   userName: string;
   userPhone: string;
 }
-
-// In-memory storage for promo codes (in production, use a database)
-const promoCodes: Map<string, any> = new Map();
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,19 +21,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Store the promo code with user information
-    const promoData = {
-      code: body.code,
-      discount: body.discount,
-      userEmail: body.userEmail,
-      userName: body.userName,
-      userPhone: body.userPhone,
-      createdAt: new Date().toISOString(),
-      used: false,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-    };
+    // Check if promo code already exists
+    const existingCode = await query(
+      'SELECT code FROM promo_codes WHERE code = $1',
+      [body.code]
+    );
 
-    promoCodes.set(body.code, promoData);
+    if (existingCode.rows.length > 0) {
+      return NextResponse.json(
+        { error: 'Promo code already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Insert promo code into database
+    const result = await query(
+      `INSERT INTO promo_codes (code, discount, user_email, user_name, user_phone, used, expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [
+        body.code,
+        body.discount,
+        body.userEmail,
+        body.userName,
+        body.userPhone,
+        false,
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+      ]
+    );
+
+    const promoData = result.rows[0];
 
     return NextResponse.json(
       {
@@ -66,17 +81,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const promoData = promoCodes.get(code);
+    // Get promo code from database
+    const result = await query(
+      'SELECT * FROM promo_codes WHERE code = $1',
+      [code]
+    );
 
-    if (!promoData) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: 'Promo code not found' },
         { status: 404 }
       );
     }
 
+    const promoData = result.rows[0];
+
     // Check if promo code is expired
-    const isExpired = new Date(promoData.expiresAt) < new Date();
+    const isExpired = promoData.expires_at && new Date(promoData.expires_at) < new Date();
 
     if (isExpired) {
       return NextResponse.json(
@@ -121,19 +142,29 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const promoData = promoCodes.get(code);
+    // Check if promo code exists
+    const checkResult = await query(
+      'SELECT * FROM promo_codes WHERE code = $1',
+      [code]
+    );
 
-    if (!promoData) {
+    if (checkResult.rows.length === 0) {
       return NextResponse.json(
         { error: 'Promo code not found' },
         { status: 404 }
       );
     }
 
-    // Update the promo code
-    promoData.used = used;
-    promoData.usedAt = new Date().toISOString();
-    promoCodes.set(code, promoData);
+    // Update the promo code in database
+    const result = await query(
+      `UPDATE promo_codes
+       SET used = $1, used_at = CURRENT_TIMESTAMP
+       WHERE code = $2
+       RETURNING *`,
+      [used, code]
+    );
+
+    const promoData = result.rows[0];
 
     return NextResponse.json(
       {

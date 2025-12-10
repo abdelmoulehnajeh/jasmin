@@ -167,6 +167,7 @@ const resources = {
       back: 'Back',
       priceLabel: 'Price',
       details: 'Details',
+      ourServicesTab: 'Our Services',
       rating: 'Rating',
       optional: 'Optional',
 
@@ -243,6 +244,7 @@ const resources = {
       // Dashboard - User
       needHelpBooking: 'Need Help with your Booking?',
       callUs: 'Call Us',
+      callUsNow: 'Call Now',
       whatsapp: 'WhatsApp',
       messenger: 'Messenger',
       noBookingsYet: 'You have no bookings yet.',
@@ -596,6 +598,7 @@ const resources = {
       back: 'Retour',
       priceLabel: 'Prix',
       details: 'Détails',
+      ourServicesTab: 'Nos Services',
       rating: 'Évaluation',
       optional: 'Optionnel',
 
@@ -672,6 +675,7 @@ const resources = {
       // Dashboard - User
       needHelpBooking: 'Besoin d\'aide avec votre réservation?',
       callUs: 'Appelez-nous',
+      callUsNow: 'Appelez',
       whatsapp: 'WhatsApp',
       messenger: 'Messenger',
       noBookingsYet: 'Vous n\'avez pas encore de réservations.',
@@ -1017,6 +1021,7 @@ const resources = {
       back: 'رجوع',
       priceLabel: 'السعر',
       details: 'التفاصيل',
+      ourServicesTab: 'خدماتنا',
       rating: 'التقييم',
       optional: 'اختياري',
 
@@ -1093,6 +1098,7 @@ const resources = {
       // Dashboard - User
       needHelpBooking: 'هل تحتاج مساعدة في حجزك؟',
       callUs: 'اتصل بنا',
+      callUsNow: 'اتصل الآن',
       whatsapp: 'واتساب',
       messenger: 'ماسنجر',
       noBookingsYet: 'ليس لديك حجوزات بعد.',
@@ -1438,6 +1444,7 @@ const resources = {
       back: 'Indietro',
       priceLabel: 'Prezzo',
       details: 'Dettagli',
+      ourServicesTab: 'I nostri servizi',
       rating: 'Valutazione',
       optional: 'Opzionale',
 
@@ -1514,6 +1521,7 @@ const resources = {
       // Dashboard - User (same as English for now)
       needHelpBooking: 'Hai bisogno di aiuto con la tua prenotazione?',
       callUs: 'Chiamaci',
+      callUsNow: 'Chiama',
       whatsapp: 'WhatsApp',
       messenger: 'Messenger',
       noBookingsYet: 'Non hai ancora prenotazioni.',

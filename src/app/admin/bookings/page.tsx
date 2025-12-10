@@ -15,6 +15,7 @@ interface Booking {
   total_price: number;
   status: string;
   flight_number?: string;
+  promo_code?: string;
   user: {
     id: number;
     full_name: string;
@@ -70,7 +71,7 @@ export default function BookingsManagement() {
           query: `
             query {
               allBookings {
-                id start_date end_date total_price status flight_number
+                id start_date end_date total_price status flight_number promo_code
                 user { id full_name email }
                 car { id brand model }
               }
@@ -403,7 +404,14 @@ export default function BookingsManagement() {
                           }`}
                         >
                           <div className="flex justify-between items-start mb-2">
-                            <p className="font-bold text-white">#{booking.id}</p>
+                            {booking.promo_code ? (
+                              <div className="flex items-center gap-1">
+                                <span className="text-sm">🎁</span>
+                                <p className="font-bold text-[#FFC800]">{booking.promo_code}</p>
+                              </div>
+                            ) : (
+                              <p className="text-gray-500 text-sm">-</p>
+                            )}
                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusColor(booking.status)}`}>
                               {booking.status}
                             </span>
@@ -432,6 +440,12 @@ export default function BookingsManagement() {
                       <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('vehicle')}</p>
                       <p className="text-white font-bold">{selectedBooking.car.brand} {selectedBooking.car.model}</p>
                     </div>
+                    {selectedBooking.promo_code && (
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">🎁 {t('promoCode') || 'Promo Code'}</p>
+                        <p className="text-[#FFC800] font-black text-lg">{selectedBooking.promo_code}</p>
+                      </div>
+                    )}
                     {selectedBooking.flight_number && (
                       <div>
                         <p className="text-xs text-gray-500 uppercase font-bold mb-1">✈️ {t('flightNumber')}</p>
@@ -493,7 +507,7 @@ export default function BookingsManagement() {
                 <table className="w-full">
                   <thead>
                     <tr className="bg-gray-800 border-b-2 border-gold-500/20">
-                      <th className="px-6 py-4 text-left text-gold-500 font-black">ID</th>
+                      <th className="px-6 py-4 text-left text-gold-500 font-black">PROMO CODE</th>
                       <th className="px-6 py-4 text-left text-gold-500 font-black">CLIENT</th>
                       <th className="px-6 py-4 text-left text-gold-500 font-black">VOITURE</th>
                       <th className="px-6 py-4 text-left text-gold-500 font-black">VOL</th>
@@ -506,7 +520,16 @@ export default function BookingsManagement() {
                   <tbody>
                     {filteredBookings.map((booking) => (
                       <tr key={booking.id} className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 text-white font-bold">#{booking.id}</td>
+                        <td className="px-6 py-4">
+                          {booking.promo_code ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">🎁</span>
+                              <span className="text-[#FFC800] font-bold">{booking.promo_code}</span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 text-sm">-</span>
+                          )}
+                        </td>
                         <td className="px-6 py-4">
                           <p className="text-white font-bold">{booking.user.full_name}</p>
                           <p className="text-gray-400 text-sm">{booking.user.email}</p>
@@ -575,11 +598,18 @@ export default function BookingsManagement() {
                     key={booking.id}
                     className="bg-gray-900 border-2 border-gold-500/20 rounded-2xl p-4 sm:p-6 space-y-4"
                   >
-                    {/* Header - ID and Status */}
+                    {/* Header - Promo Code and Status */}
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('booking')}</p>
-                        <p className="text-white font-black text-lg">#{booking.id}</p>
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">{t('promoCode') || 'Promo Code'}</p>
+                        {booking.promo_code ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">🎁</span>
+                            <span className="text-[#FFC800] font-black text-lg">{booking.promo_code}</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-500 text-sm">-</span>
+                        )}
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(booking.status)}`}>
                         {booking.status}

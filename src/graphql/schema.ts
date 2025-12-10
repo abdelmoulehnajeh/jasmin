@@ -53,6 +53,7 @@ export const typeDefs = `#graphql
     payment_status: String!
     notes: String
     flight_number: String
+    promo_code: String
     created_at: String!
     car: Car
     user: User
@@ -170,6 +171,7 @@ export const typeDefs = `#graphql
     end_date: String!
     notes: String
     flight_number: String
+    promo_code: String
   }
 
   input RatingInput {

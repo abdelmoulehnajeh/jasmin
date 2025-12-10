@@ -32,7 +32,10 @@ export default function CarCard({ car, onBook }: CarCardProps) {
   })();
 
   return (
-    <div className="bg-gray-800 rounded-xl overflow-hidden shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-primary-500/20">
+    <div
+      onClick={onBook}
+      className="bg-gray-800 rounded-xl overflow-hidden shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-primary-500/20 cursor-pointer"
+    >
       {/* Car Image */}
       <div className="relative h-48 sm:h-64 bg-gray-700">
         {car.image_base64 ? (
@@ -155,7 +158,10 @@ export default function CarCard({ car, onBook }: CarCardProps) {
             <span className="text-gray-400 text-xs sm:text-sm ml-2">/ {t('perDay')}</span>
           </div>
           <button
-            onClick={onBook}
+            onClick={(e) => {
+              e.stopPropagation();
+              onBook();
+            }}
             disabled={car.status !== 'AVAILABLE'}
             className={`w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base ${car.status === 'AVAILABLE'
                 ? 'bg-primary-600 hover:bg-primary-700 text-white transform hover:scale-105'

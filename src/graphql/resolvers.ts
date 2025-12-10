@@ -452,7 +452,7 @@ export const resolvers = {
     createBooking: async (_: any, { input }: any, context: any) => {
       if (!context.user) throw new Error('Not authenticated');
 
-      const { car_id, start_date, end_date, notes, flight_number } = input;
+      const { car_id, start_date, end_date, notes, flight_number, promo_code } = input;
 
       // Calculate days and price
       const start = new Date(start_date);
@@ -463,14 +463,58 @@ export const resolvers = {
       const carResult = await query('SELECT price_per_day FROM cars WHERE id = $1', [car_id]);
       if (carResult.rows.length === 0) throw new Error('Car not found');
 
-      const totalPrice = days * parseFloat(carResult.rows[0].price_per_day);
+      let totalPrice = days * parseFloat(carResult.rows[0].price_per_day);
+      let validPromoCode: string | null = null;
+
+      // Validate and apply promo code if provided
+      if (promo_code) {
+        // Check if promo code exists and is valid
+        const promoResult = await query(
+          `SELECT * FROM promo_codes WHERE code = $1`,
+          [promo_code]
+        );
+
+        if (promoResult.rows.length === 0) {
+          throw new Error('Invalid promo code');
+        }
+
+        const promo = promoResult.rows[0];
+
+        // Check if promo code has already been used
+        if (promo.used) {
+          throw new Error('This promo code has already been used');
+        }
+
+        // Check if user has already used this promo code
+        const userPromoCheck = await query(
+          `SELECT id FROM bookings WHERE user_id = $1 AND promo_code = $2`,
+          [context.user.userId, promo_code]
+        );
+
+        if (userPromoCheck.rows.length > 0) {
+          throw new Error('You have already used this promo code');
+        }
+
+        // Apply discount
+        const discount = parseFloat(promo.discount) || 0;
+        totalPrice = totalPrice * (1 - discount / 100);
+        validPromoCode = promo_code;
+
+        // Mark promo code as used
+        await query(
+          `UPDATE promo_codes
+           SET used = TRUE, used_by_user_id = $1, used_at = CURRENT_TIMESTAMP
+           WHERE code = $2`,
+          [context.user.userId, promo_code]
+        );
+      }
 
       // Create booking
       const result = await query(
-        `INSERT INTO bookings (car_id, user_id, start_date, end_date, total_days, total_price, notes, flight_number)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `INSERT INTO bookings (car_id, user_id, start_date, end_date, total_days, total_price, notes, flight_number, promo_code)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING *`,
-        [car_id, context.user.userId, start_date, end_date, days, totalPrice, notes, flight_number || null]
+        [car_id, context.user.userId, start_date, end_date, days, totalPrice, notes, flight_number || null, validPromoCode]
       );
 
       return result.rows[0];

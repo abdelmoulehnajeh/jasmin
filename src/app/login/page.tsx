@@ -223,6 +223,12 @@ function LoginContent() {
         const pending = localStorage.getItem('pendingBooking');
         if (pending) {
           const parsed = JSON.parse(pending);
+
+          // Add promo code to pending booking if user validated one during signup
+          if (promoValidated && promoCode) {
+            parsed.promo_code = promoCode.trim();
+          }
+
           const mutation = `mutation CreateBooking($input: BookingInput!) { createBooking(input: $input) { id } }`;
           const resp = await fetch('/api/graphql', {
             method: 'POST',
@@ -236,7 +242,8 @@ function LoginContent() {
           const bookingData = await resp.json();
           if (!bookingData.errors) {
             localStorage.removeItem('pendingBooking');
-            toast.success('Your booking was created. Redirecting to dashboard...');
+            localStorage.removeItem('activePromoCode'); // Clear used promo code
+            toast.success('Your booking was created with discount! Redirecting to dashboard...');
           } else {
             console.warn('Pending booking creation failed', bookingData.errors);
           }

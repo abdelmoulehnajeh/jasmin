@@ -292,22 +292,6 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
                 {t('spinTheWheel')}
               </h2>
 
-              {/* Show all available gifts */}
-              <div className="mb-6">
-                <p className="text-gray-400 text-sm mb-3">Available Prizes:</p>
-                <div className="flex flex-wrap justify-center gap-2 mb-4">
-                  {prizes.map((prize) => (
-                    <div
-                      key={prize.id}
-                      className="flex items-center gap-1 bg-black/30 border border-gray-700 rounded-lg px-2 py-1"
-                    >
-                      <span className="text-lg">{prize.emoji}</span>
-                      <span className="text-xs text-white font-bold">{prize.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               <div className="relative w-full max-w-[320px] sm:max-w-[400px] mx-auto mb-6 sm:mb-8">
                 {/* Wheel Container */}
                 <div className="relative aspect-square">
@@ -358,34 +342,6 @@ export default function SpinWheelModal({ isOpen, onClose }: SpinWheelModalProps)
 
                           {/* Segment border */}
                           <path d={pathData} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-
-                          {/* Prize content */}
-                          <g transform={`translate(${textX}, ${textY}) rotate(${textRotation})`}>
-                            {/* Emoji */}
-                            <text
-                              x="0"
-                              y="-15"
-                              textAnchor="middle"
-                              fontSize="32"
-                              style={{ userSelect: 'none' }}
-                            >
-                              {prize.emoji}
-                            </text>
-                            {/* Percentage */}
-                            <text
-                              x="0"
-                              y="15"
-                              textAnchor="middle"
-                              fontSize="20"
-                              fontWeight="900"
-                              fill="white"
-                              stroke="rgba(0,0,0,0.5)"
-                              strokeWidth="1"
-                              style={{ userSelect: 'none' }}
-                            >
-                              {prize.label}
-                            </text>
-                          </g>
                         </g>
                       );
                     })}
