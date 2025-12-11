@@ -188,6 +188,26 @@ export default function DashboardPage() {
       {/* Main content shifted right to account for sidebar */}
       {/* Main content shifted right to account for sidebar */}
       <main className={`${isCollapsed ? 'lg:ml-20' : 'lg:ml-72'} p-6 pt-20 lg:pt-6 max-w-6xl mx-auto`}>
+        {/* Back to Home Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('language');
+              }
+              router.push('/');
+            }}
+            className="group flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 border-2 border-gray-700 hover:border-gold-500 rounded-xl transition-all"
+          >
+            <svg className="w-5 h-5 text-gold-500 group-hover:translate-x-[-4px] transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="font-bold text-white">{t('menuBack')}</span>
+          </button>
+        </div>
+
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl sm:text-4xl font-black">{view === 'bookings' ? t('myBookings') : view === 'reviews' ? t('yourReviews') : t('myProfile')}</h1>

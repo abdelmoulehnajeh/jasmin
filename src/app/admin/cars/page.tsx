@@ -25,6 +25,7 @@ export default function CarsManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCar, setEditingCar] = useState<Car | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     brand: '',
@@ -36,6 +37,8 @@ export default function CarsManagement() {
   });
 
   useEffect(() => {
+    setMounted(true);
+
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
@@ -103,9 +106,12 @@ export default function CarsManagement() {
         total_count: 1,
       };
 
+      console.log('Submitting car with gallery length:', formData.gallery?.length);
+      console.log('Gallery data being sent:', input.gallery.length, 'images');
+
       const mutation = editingCar
-        ? `mutation UpdateCar($id: String!, $input: CarInput!) { updateCar(id: $id, input: $input) { id brand model year price_per_day status } }`
-        : `mutation CreateCar($input: CarInput!) { createCar(input: $input) { id brand model year price_per_day status } }`;
+        ? `mutation UpdateCar($id: String!, $input: CarInput!) { updateCar(id: $id, input: $input) { id brand model year price_per_day status gallery image_base64 } }`
+        : `mutation CreateCar($input: CarInput!) { createCar(input: $input) { id brand model year price_per_day status gallery image_base64 } }`;
 
       const variables = editingCar
         ? { id: editingCar.id, input }
@@ -175,12 +181,12 @@ export default function CarsManagement() {
     setShowAddModal(true);
   };
 
-  if (loading) {
+  if (loading || !mounted) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white font-bold text-xl">{t('loadingText')}</p>
+          <p className="text-white font-bold text-xl">Loading...</p>
         </div>
       </div>
     );
@@ -347,52 +353,83 @@ export default function CarsManagement() {
                   </div>
                 </div>
 
-                {/* Gallery Preview */}
+                {/* Gallery Preview - Enhanced for 6+ images */}
                 <div className="mt-4">
-                  <p className="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wider">{t('photos')} ({formData.gallery?.length || 0}) - {t('firstIsCover')}</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {(formData.gallery || []).map((g, idx) => (
-                      <div key={idx} className={`relative group aspect-video rounded-xl overflow-hidden border-2 ${idx === 0 ? 'border-orange-500 shadow-lg shadow-orange-500/20' : 'border-gray-700'}`}>
-                        <img src={g} className="w-full h-full object-cover" />
+                  <p className="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wider">
+                    📸 {t('photos')} ({formData.gallery?.length || 0}) - {t('firstIsCover')}
+                  </p>
 
-                        {/* Overlay Actions */}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          {idx !== 0 && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newGallery = [...(formData.gallery || [])];
-                                const [moved] = newGallery.splice(idx, 1);
-                                newGallery.unshift(moved);
-                                setFormData({ ...formData, gallery: newGallery });
-                              }}
-                              className="p-2 bg-blue-600 rounded-full hover:bg-blue-500 text-white text-xs font-bold"
-                              title={t('setAsCover')}
-                            >
-                              ★
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newGallery = (formData.gallery || []).filter((_, i) => i !== idx);
-                              setFormData({ ...formData, gallery: newGallery });
-                            }}
-                            className="p-2 bg-red-600 rounded-full hover:bg-red-500 text-white text-xs font-bold"
-                          >
-                            ✕
-                          </button>
-                        </div>
+                  {/* Scrollable Gallery Grid - Shows 6+ images */}
+                  <div className="max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-orange-500 scrollbar-track-gray-800">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                      {(formData.gallery || []).map((g, idx) => (
+                        <div key={idx} className={`relative group aspect-square rounded-lg overflow-hidden border-2 ${idx === 0 ? 'border-orange-500 shadow-lg shadow-orange-500/20' : 'border-gray-700 hover:border-gray-500'} transition-all`}>
+                          <img src={g} className="w-full h-full object-cover" alt={`Photo ${idx + 1}`} />
 
-                        {/* Cover Badge */}
-                        {idx === 0 && (
-                          <div className="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                            COVER
+                          {/* Overlay Actions */}
+                          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+                            <div className="flex gap-1">
+                              {idx !== 0 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const newGallery = [...(formData.gallery || [])];
+                                    const [moved] = newGallery.splice(idx, 1);
+                                    newGallery.unshift(moved);
+                                    setFormData(prev => ({ ...prev, gallery: newGallery }));
+                                  }}
+                                  className="p-1.5 bg-blue-600 rounded-lg hover:bg-blue-500 text-white text-xs font-bold"
+                                  title={t('setAsCover')}
+                                >
+                                  ⭐
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  const newGallery = (formData.gallery || []).filter((_, i) => i !== idx);
+                                  console.log('Deleting image', idx, 'New gallery length:', newGallery.length);
+                                  setFormData(prev => {
+                                    console.log('Previous gallery:', prev.gallery?.length, 'New gallery:', newGallery.length);
+                                    return { ...prev, gallery: newGallery };
+                                  });
+                                  toast.success(`Image ${idx + 1} deleted! Click MODIFIER to save.`);
+                                }}
+                                className="p-1.5 bg-red-600 rounded-lg hover:bg-red-500 text-white text-xs font-bold"
+                                title="Delete"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                            <span className="text-[10px] text-white font-bold">#{idx + 1}</span>
                           </div>
-                        )}
-                      </div>
-                    ))}
+
+                          {/* Cover Badge */}
+                          {idx === 0 && (
+                            <div className="absolute top-1 left-1 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg">
+                              COVER
+                            </div>
+                          )}
+
+                          {/* Image Number Badge */}
+                          <div className="absolute bottom-1 right-1 bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                            {idx + 1}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+
+                  {/* Upload hint */}
+                  {(formData.gallery?.length || 0) > 0 && (
+                    <p className="text-[10px] text-gray-600 mt-2 italic">
+                      💡 Tip: Upload more images to create a complete gallery (recommended: 6-10 images)
+                    </p>
+                  )}
                 </div>
               </div>
               <div>

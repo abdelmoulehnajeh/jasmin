@@ -326,6 +326,9 @@ const resources = {
       pricePerDayLabel: 'Price/Day ($)',
       imageUrl: 'Image URL',
       uploadMultiplePhotos: 'Upload multiple photos — stored as base64 in DB. First photo used as main image.',
+      photos: 'Photos',
+      firstIsCover: 'First photo is cover',
+      setAsCover: 'Set as cover',
       descriptionLabel: 'Description',
       shortDescription: 'Short description',
       addBtn: 'ADD',
@@ -442,7 +445,7 @@ const resources = {
       dashboard: 'Tableau de bord',
       getStarted: 'COMMENCER',
       menu: 'Menu',
-      signIn: 'Se Connecter',
+      signIn: 'Connecter',
 
       // Service Types
       marriage: 'MARIAGE',
@@ -683,7 +686,7 @@ const resources = {
       // Dashboard - User
       needHelpBooking: 'Besoin d\'aide avec votre réservation?',
       callUs: 'Appelez-nous',
-      callUsNow: 'Appelez',
+      callUsNow: 'Appeler',
       whatsapp: 'WhatsApp',
       messenger: 'Messenger',
       noBookingsYet: 'Vous n\'avez pas encore de réservations.',
