@@ -37,12 +37,12 @@ export default function CarCard({ car, onBook }: CarCardProps) {
       className="bg-gray-800 rounded-xl overflow-hidden shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-primary-500/20 cursor-pointer"
     >
       {/* Car Image */}
-      <div className="relative h-48 sm:h-64 bg-gray-700">
+      <div className="relative h-64 sm:h-80 md:h-96 bg-gray-800/50 p-4 sm:p-6">
         {car.image_base64 ? (
           <img
             src={car.image_base64}
             alt={nameText}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         ) : (
           <div className="flex items-center justify-center h-full">

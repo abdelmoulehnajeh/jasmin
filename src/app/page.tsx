@@ -516,20 +516,7 @@ export default function LandingPage() {
                     <span className="text-sm font-semibold">{t('airportTransfers')}</span>
                   </button>
 
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      setTimeout(() => {
-                        const el = document.querySelector('#fleet');
-                        el?.scrollIntoView({ behavior: 'auto', block: 'start' });
-                      }, 100);
-                    }}
-                    className="w-full text-left px-3 py-3 text-white hover:bg-[#FFC800]/20 rounded-md transition-all flex items-center gap-3"
-                  >
-                    <span className="text-xl">🚗</span>
-                    <span className="text-sm font-semibold">{t('ourFleetMenu')}</span>
-                  </button>
+
                 </div>
               </div>
 
@@ -597,7 +584,7 @@ export default function LandingPage() {
       )}
 
       {/* Hero Section */}
-      <section className="hero-section relative min-h-screen flex items-center justify-center overflow-hidden pt-32 sm:pt-36 md:pt-0">
+      <section className="hero-section relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-32 sm:pt-36 md:pt-0">
         {heroSettings?.video_url ? (
           <div className="absolute inset-0 z-0">
             <video autoPlay loop muted playsInline className="w-full h-full object-cover">
@@ -608,22 +595,48 @@ export default function LandingPage() {
         ) : (
           <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-700 to-gray-900" />
         )}
-        <div className="hero-content relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-12 sm:py-16 md:py-20" key={i18n.language}>
-          <div className="max-w-[1400px] mx-auto text-center md:text-left">
+        <div className="hero-content relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-12 sm:py-16 md:py-20 flex-1 flex items-end justify-center pb-12 sm:pb-16 md:pb-20" key={i18n.language}>
+          <div className="max-w-[1400px] mx-auto text-center w-full">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white leading-tight mb-4 sm:mb-6 md:mb-8">
               {getTranslatedText(heroSettings?.title, 'Welcome to Jasmin Rent Cars')}
             </h1>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white/90 mb-6 sm:mb-8 md:mb-12 max-w-2xl mx-auto md:mx-0 leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white/90 mb-6 sm:mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed">
               {getTranslatedText(heroSettings?.subtitle, 'Your Premium Car Rental Experience')}
             </p>
           </div>
+        </div>
+
+      
+
+        {/* Scroll Indicator - positioned at bottom center */}
+        <div className="relative z-10 pb-8 sm:pb-10 md:pb-12 flex flex-col items-center">
+          <button
+            onClick={() => document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' })}
+            className="group flex flex-col items-center gap-2 sm:gap-3 cursor-pointer animate-bounce hover:animate-none transition-all"
+          >
+            <p className="text-white text-xs sm:text-sm md:text-base font-bold uppercase tracking-wider opacity-90 group-hover:opacity-100 group-hover:text-[#FFC800] transition-all">
+              {t('scrollToExplore')}
+            </p>
+            <div className="w-6 h-10 sm:w-7 sm:h-12 md:w-8 md:h-14 border-2 sm:border-3 border-white/50 group-hover:border-[#FFC800] rounded-full p-2 transition-all">
+              <div className="w-1 h-2 sm:w-1.5 sm:h-3 bg-white/70 group-hover:bg-[#FFC800] rounded-full mx-auto animate-scroll"></div>
+            </div>
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white/70 group-hover:text-[#FFC800] transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
+        </div>
+          {/* Our Services Heading - positioned at bottom center above scroll indicator */}
+        <div className="relative z-10 pb-4 sm:pb-6 flex flex-col items-center">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide text-center">
+            {t('ourServices')}
+          </h2>
         </div>
       </section>
       {/* Services Section */}
       <section id="services" className="py-12 sm:py-16 md:py-24 lg:py-32 bg-[#0a0a0a]">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('ourServices')}</h2>
+            {/* <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('ourServices')}</h2> */}
             <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto">{t('premiumLuxuryTransport')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
@@ -635,16 +648,16 @@ export default function LandingPage() {
                 onClick={() => { setSelectedService(service.type as ServiceType); document.querySelector('#fleet')?.scrollIntoView({ behavior: 'smooth' }); }}
                 className="service-card group cursor-pointer bg-[#1a1a1a] border border-gray-800 shadow-2xl hover:shadow-[0_0_40px_rgba(255,200,0,0.3)] transition-all duration-500 overflow-hidden"
               >
-                <div className={`relative h-40 sm:h-52 md:h-64 lg:h-80 bg-gradient-to-br ${service.gradient} overflow-hidden border-b border-gray-800`}>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/0 transition-all duration-500">
+                <div className={`relative h-64 sm:h-80 md:h-96 lg:h-[32rem] bg-gradient-to-br ${service.gradient} overflow-hidden border-b border-gray-800`}>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/0 transition-all duration-500 p-4 sm:p-6 md:p-8">
                     {/* @ts-ignore */}
                     {service.image ? (
-                      <div className="relative w-full h-full transform group-hover:scale-110 transition-transform duration-700">
+                      <div className="relative w-full h-full transform group-hover:scale-105 transition-transform duration-700">
                         <Image
                           src={service.image}
                           alt={service.title}
                           fill
-                          className="object-cover"
+                          className="object-contain"
                         />
                       </div>
                     ) : (
@@ -667,6 +680,23 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+         {/* CTA Buttons Section */}
+        <section className="relative py-4 sm:py-6 md:py-8 bg-gradient-to-b from-[#0a0a0a] to-[#000000]">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 justify-center items-center">
+              <button
+                onClick={() => setIsSpinWheelOpen(true)}
+                className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/50 overflow-hidden w-full sm:w-auto"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
+                <span className="relative text-2xl sm:text-3xl md:text-4xl">🎁</span>
+                <span className="relative">{t('giftOffer')}</span>
+              </button>
+         
+            </div>
+          </div>
+        </section>
       {/* Fleet Section */}
       <section id="fleet" className="py-12 sm:py-16 md:py-24 bg-[#0a0a0a]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -775,22 +805,7 @@ export default function LandingPage() {
             <source src="/back1.mp4" type="video/mp4" />
           </video>
         </div>
-        {/* CTA Buttons Section */}
-        <section className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-b from-[#0a0a0a] to-[#000000]">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 justify-center items-center">
-              <button
-                onClick={() => setIsSpinWheelOpen(true)}
-                className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/50 overflow-hidden w-full sm:w-auto"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
-                <span className="relative text-2xl sm:text-3xl md:text-4xl">🎁</span>
-                <span className="relative">{t('giftOffer')}</span>
-              </button>
-         
-            </div>
-          </div>
-        </section>
+     
         {/* Why Choose Us Section */}
         <section id="why-choose" className="relative py-12 sm:py-16 md:py-24 z-10">
           {/* Dark overlay that fades */}

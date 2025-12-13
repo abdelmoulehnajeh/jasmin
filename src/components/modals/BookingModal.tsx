@@ -144,7 +144,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-[#FFC800]/30 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-[#FFC800]/30 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto overflow-x-visible">
           {/* Close Button */}
           <button
             onClick={onClose}
@@ -169,11 +169,11 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
               {/* Car Image Gallery - Full Width */}
               <div className="w-full relative">
                 {galleryImages.length > 0 ? (
-                  <div className="relative">
+                  <div className="relative bg-gray-800/50 rounded-lg p-4 sm:p-6 md:p-8">
                     <img
                       src={galleryImages[selectedImageIndex]}
                       alt={`${nameText} - Image ${selectedImageIndex + 1}`}
-                      className="w-full h-64 sm:h-80 md:h-96 object-cover rounded-lg"
+                      className="w-full h-[28rem] sm:h-[36rem] md:h-[42rem] lg:h-[48rem] object-contain rounded-lg"
                     />
 
                     {/* Gallery Navigation */}
@@ -235,7 +235,7 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                             <img
                               src={img}
                               alt={`Thumbnail ${idx + 1}`}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain bg-gray-800/50"
                             />
                           </button>
                         ))}
@@ -469,15 +469,17 @@ export default function BookingModal({ car, isOpen, onClose }: BookingModalProps
                   >
                     ← {t('back')}
                   </button>
+
+                  {/* Discuss with Agent - Navigate to Contact Page */}
                   <button
-                    onClick={handleSubmit}
-                    disabled={!startDate || !pickupTime}
-                    className={`flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base ${startDate && pickupTime
-                      ? 'bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black shadow-lg hover:shadow-xl'
-                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                      }`}
+                    onClick={() => router.push('/contact-agent')}
+                    className="flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-[#FFC800] to-[#FFD700] hover:from-[#FFD700] hover:to-[#FFC800] text-black rounded-lg font-bold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base flex items-center justify-center gap-2"
                   >
-                    {t('confirmBooking')}
+                    <span>💬</span>
+                    <span>{t('discussWithAgent') || 'Discuss with Agent'}</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </button>
                 </>
               )}

@@ -35,6 +35,7 @@ const resources = {
       marriageDesc: 'Luxury cars for your special day',
       transferDesc: 'Airport & location transfers',
       startScrolling: 'START SCROLLING',
+      scrollToExplore: 'Scroll to Explore',
 
       // Landing Stats
       statReal: 'PREMIUM',
@@ -222,6 +223,12 @@ const resources = {
       loading: 'Loading...',
       success: 'Success',
       error: 'Error',
+      discussWithAgent: 'Discuss with Agent',
+      chooseContactMethod: 'Choose your preferred method to contact us',
+      chatOnWhatsApp: 'Chat with us on WhatsApp for instant responses',
+      chatOnMessenger: 'Connect with us via Facebook Messenger',
+      callUsDirectly: 'Call us directly for immediate assistance',
+      availableSupport: 'Our team is available to help you 24/7',
 
       // Spin Wheel
       winADiscount: 'Win a Discount!',
@@ -465,6 +472,7 @@ const resources = {
       marriageDesc: 'Voitures de luxe pour votre jour spécial',
       transferDesc: 'Transferts aéroport & destinations',
       startScrolling: 'COMMENCER À DÉFILER',
+      scrollToExplore: 'Faites défiler pour explorer',
 
       // Landing Stats
       statReal: 'PREMIUM',
@@ -654,6 +662,12 @@ const resources = {
       save: 'Enregistrer',
       cancel: 'Annuler',
       delete: 'Supprimer',
+      discussWithAgent: 'Discuter avec un agent',
+      chooseContactMethod: 'Choisissez votre méthode de contact préférée',
+      chatOnWhatsApp: 'Chattez avec nous sur WhatsApp pour des réponses instantanées',
+      chatOnMessenger: 'Connectez-vous avec nous via Facebook Messenger',
+      callUsDirectly: 'Appelez-nous directement pour une assistance immédiate',
+      availableSupport: 'Notre équipe est disponible pour vous aider 24/7',
       edit: 'Modifier',
       search: 'Rechercher',
       filter: 'Filtrer',
@@ -900,6 +914,7 @@ const resources = {
       marriageDesc: 'سيارات فاخرة ليومك الخاص',
       transferDesc: 'نقل المطار والمواقع',
       startScrolling: 'ابدأ التمرير',
+      scrollToExplore: 'قم بالتمرير للاستكشاف',
 
       // Landing Stats
       statReal: 'بريميوم',
@@ -1087,6 +1102,12 @@ const resources = {
       loading: 'جاري التحميل...',
       success: 'نجح',
       error: 'خطأ',
+      discussWithAgent: 'ناقش مع الوكيل',
+      chooseContactMethod: 'اختر طريقة الاتصال المفضلة لديك',
+      chatOnWhatsApp: 'تحدث معنا على واتساب للحصول على ردود فورية',
+      chatOnMessenger: 'تواصل معنا عبر فيسبوك ماسنجر',
+      callUsDirectly: 'اتصل بنا مباشرة للحصول على مساعدة فورية',
+      availableSupport: 'فريقنا متاح لمساعدتك على مدار الساعة طوال أيام الأسبوع',
 
       // Spin Wheel
       winADiscount: 'اربح خصمًا!',
@@ -1327,6 +1348,7 @@ const resources = {
       marriageDesc: 'Auto di lusso per il tuo giorno speciale',
       transferDesc: 'Transfer aeroportuali e locali',
       startScrolling: 'INIZIA A SCORRERE',
+      scrollToExplore: 'Scorri per esplorare',
 
       // Landing Stats
       statReal: 'PREMIUM',
@@ -1514,6 +1536,12 @@ const resources = {
       loading: 'Caricamento...',
       success: 'Successo',
       error: 'Errore',
+      discussWithAgent: 'Discuti con l\'agente',
+      chooseContactMethod: 'Scegli il tuo metodo di contatto preferito',
+      chatOnWhatsApp: 'Chattare con noi su WhatsApp per risposte istantanee',
+      chatOnMessenger: 'Connettiti con noi tramite Facebook Messenger',
+      callUsDirectly: 'Chiamaci direttamente per assistenza immediata',
+      availableSupport: 'Il nostro team è disponibile ad aiutarti 24 ore su 24, 7 giorni su 7',
 
       // Spin Wheel
       winADiscount: 'Vinci uno Sconto!',
