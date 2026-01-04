@@ -16,6 +16,11 @@ const resources = {
       getStarted: 'GET STARTED',
       menu: 'Menu',
       signIn: 'Sign In',
+      aboutTitle: 'About Jasmin Rent Cars',
+      aboutDescription: 'Elevating your journey with elegance and prestige.',
+      emailLabel: 'Email Address',
+      locationLabel: 'Location',
+      viewOnMap: 'View on Google Maps',
 
       // Service Types
       marriage: 'MARRIAGE',
@@ -103,7 +108,7 @@ const resources = {
       airportTransferDesc: 'Experience seamless airport transfers with our premium fleet. We track your flight in real-time.',
       realTimeFlightTracking: 'Real-time flight tracking',
       fixedPricingNoHiddenFees: 'Fixed pricing with no hidden fees',
-      professionalChauffeurs: 'Professional chauffeurs',
+      professionalChauffeurs: 'Professional Drivers',
       bookAirportTransfer: 'Book Airport Transfer',
 
       // Why Choose Us
@@ -114,8 +119,8 @@ const resources = {
       premiumQualityDesc: 'Luxury vehicles with professional chauffeurs',
       instantBooking: 'Instant Booking',
       instantBookingDesc: 'Online booking with 24/7 support',
-      securePayment: 'Secure Payment',
-      securePaymentDesc: 'Bank-level encryption for transactions',
+      securePayment: 'Car Decoration Service',
+      securePaymentDesc: 'Elegant floral and ribbon decor for your special day',
 
       // CTA Section
       readyToBook: 'Ready to Book Your Ride?',
@@ -453,6 +458,11 @@ const resources = {
       getStarted: 'COMMENCER',
       menu: 'Menu',
       signIn: 'Connecter',
+      aboutTitle: 'À propos de Jasmin Rent Cars',
+      aboutDescription: 'Sublimez vos déplacements avec élégance et prestige.',
+      emailLabel: 'Adresse Email',
+      locationLabel: 'Emplacement',
+      viewOnMap: 'Voir sur Google Maps',
 
       // Service Types
       marriage: 'MARIAGE',
@@ -510,9 +520,9 @@ const resources = {
       ourServices: 'Nos Services',
       premiumLuxuryTransport: 'Transport de luxe premium pour toutes les occasions',
       wedding: 'Mariage',
-      weddingServiceDesc: 'Service de voiture de mariage de luxe avec chauffeurs professionnels. Rendez votre journée spéciale inoubliable.',
+      weddingServiceDesc: 'Spécialisés dans la location de voitures de mariage, de luxe et de collection, nous mettons à votre disposition une sélection de véhicules pour sublimer vos événements. Que ce soit pour un mariage, une cérémonie ou un shooting, nos voitures allient élégance, confort et prestige.',
       transferTitle: 'Transfert',
-      transferServiceDesc: 'Transferts d\'aéroport et de lieu fiables avec suivi de vol et tarification fixe.',
+      transferServiceDesc: 'Nous proposons un service de transfert aéroport fiable, confortable et ponctuel. À bord de véhicules récents, de luxe ou haut de gamme, nous assurons vos déplacements depuis et vers l’aéroport dans les meilleures conditions.',
       learnMore: 'En Savoir Plus',
 
       // Fleet Section
@@ -551,12 +561,12 @@ const resources = {
       premiumQualityDesc: 'Véhicules de luxe avec chauffeurs professionnels',
       instantBooking: 'Réservation Instantanée',
       instantBookingDesc: 'Réservation en ligne avec support 24/7',
-      securePayment: 'Paiement Sécurisé',
-      securePaymentDesc: 'Chiffrement de niveau bancaire pour les transactions',
+      securePayment: 'Service de Décoration des Voitures',
+      securePaymentDesc: 'Service de décoration florale et rubans pour votre mariage',
 
       // CTA Section
       readyToBook: 'Prêt à Réserver Votre Course?',
-      experienceProfessional: 'Découvrez le transport de luxe professionnel avec tarification fixe et service exceptionnel',
+      experienceProfessional: 'Offrez-vous un service de transport d’exception, alliant confort, élégance et accompagnement irréprochable.',
       getStartedCta: 'Commencer',
 
       // Footer

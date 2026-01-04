@@ -15,6 +15,7 @@ interface Car {
   status: string;
   image_base64?: string | null;
   gallery?: string[];
+  service_type: string;
 }
 
 export default function CarsManagement() {
@@ -26,7 +27,6 @@ export default function CarsManagement() {
   const [editingCar, setEditingCar] = useState<Car | null>(null);
   const [user, setUser] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
-
   const [formData, setFormData] = useState({
     brand: '',
     model: '',
@@ -34,6 +34,7 @@ export default function CarsManagement() {
     price_per_day: 0,
     description: '',
     gallery: [] as string[],
+    service_type: 'marriage',
   });
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export default function CarsManagement() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          query: `query { cars { id brand model year price_per_day status image_base64 gallery } }`,
+          query: `query { cars { id brand model year price_per_day status image_base64 gallery service_type } }`,
         }),
       });
 
@@ -104,14 +105,15 @@ export default function CarsManagement() {
         image_base64: (formData.gallery && formData.gallery.length > 0) ? formData.gallery[0] : null,
         gallery: formData.gallery || [],
         total_count: 1,
+        service_type: formData.service_type,
       };
 
       console.log('Submitting car with gallery length:', formData.gallery?.length);
       console.log('Gallery data being sent:', input.gallery.length, 'images');
 
       const mutation = editingCar
-        ? `mutation UpdateCar($id: String!, $input: CarInput!) { updateCar(id: $id, input: $input) { id brand model year price_per_day status gallery image_base64 } }`
-        : `mutation CreateCar($input: CarInput!) { createCar(input: $input) { id brand model year price_per_day status gallery image_base64 } }`;
+        ? `mutation UpdateCar($id: String!, $input: CarInput!) { updateCar(id: $id, input: $input) { id brand model year price_per_day status gallery image_base64 service_type } }`
+        : `mutation CreateCar($input: CarInput!) { createCar(input: $input) { id brand model year price_per_day status gallery image_base64 service_type } }`;
 
       const variables = editingCar
         ? { id: editingCar.id, input }
@@ -131,7 +133,7 @@ export default function CarsManagement() {
         toast.success(editingCar ? t('carModified') : t('carAdded'));
         setShowAddModal(false);
         setEditingCar(null);
-        setFormData({ brand: '', model: '', year: new Date().getFullYear(), price_per_day: 0, description: '', gallery: [] });
+        setFormData({ brand: '', model: '', year: new Date().getFullYear(), price_per_day: 0, description: '', gallery: [], service_type: 'marriage' });
         fetchCars(token!);
       } else {
         toast.error(data.errors[0].message);
@@ -177,6 +179,7 @@ export default function CarsManagement() {
       price_per_day: car.price_per_day,
       description: '',
       gallery: car.gallery || [],
+      service_type: car.service_type || 'marriage',
     });
     setShowAddModal(true);
   };
@@ -208,7 +211,7 @@ export default function CarsManagement() {
           <button
             onClick={() => {
               setEditingCar(null);
-              setFormData({ brand: '', model: '', year: new Date().getFullYear(), price_per_day: 0, description: '', gallery: [] });
+              setFormData({ brand: '', model: '', year: new Date().getFullYear(), price_per_day: 0, description: '', gallery: [], service_type: 'marriage' });
               setShowAddModal(true);
             }}
             className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-black rounded-xl transform hover:scale-105 transition-all flex items-center space-x-2"
@@ -238,6 +241,9 @@ export default function CarsManagement() {
                     }`}>
                     {car.status === 'AVAILABLE' ? t('availableLabel').toUpperCase() : t('booking').toUpperCase()}
                   </span>
+                  <p className="text-gray-400 text-sm mt-1">
+                    <span className="font-bold">Service:</span> {car.service_type === 'marriage' ? '💍 Wedding' : '✈️ Transfer'}
+                  </p>
                 </div>
                 <div className="flex space-x-2">
                   <button
@@ -319,6 +325,18 @@ export default function CarsManagement() {
                     className="w-full px-4 py-3 bg-black border-2 border-gray-700 focus:border-orange-500 rounded-lg text-white outline-none"
                   />
                 </div>
+              </div>
+              <div>
+                <label className="block text-orange-500 font-bold mb-2">Service Type</label>
+                <select
+                  value={formData.service_type}
+                  onChange={(e) => setFormData({ ...formData, service_type: e.target.value })}
+                  required
+                  className="w-full px-4 py-3 bg-black border-2 border-gray-700 focus:border-orange-500 rounded-lg text-white outline-none appearance-none"
+                >
+                  <option value="marriage">💍 {t('wedding') || 'Wedding'}</option>
+                  <option value="transfer">✈️ {t('transferTitle') || 'Transfer'}</option>
+                </select>
               </div>
               <div>
                 <label className="block text-orange-500 font-bold mb-2">{t('imageUrl')}</label>

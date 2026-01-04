@@ -5,6 +5,7 @@ import { useClientTranslation } from '@/hooks/useClientTranslation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
+import Link from 'next/link';
 import CarCard from '@/components/CarCard';
 import BookingModal from '@/components/modals/BookingModal';
 import SpinWheelModal from '@/components/modals/SpinWheelModal';
@@ -27,11 +28,14 @@ export default function LandingPage() {
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [dataReady, setDataReady] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [showContent, setShowContent] = useState(false);
   const [heroSettings, setHeroSettings] = useState<HeroSettings | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isSpinWheelOpen, setIsSpinWheelOpen] = useState(false);
+  const loadingOverlayRef = useRef<HTMLDivElement>(null);
 
   const getTranslatedText = (data: string | object | undefined, fallback: string): string => {
     if (!data) return fallback;
@@ -239,7 +243,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchData = async () => {
       // console.log('🌍 Fetching data for language:', i18n.language);
-      setLoading(true);
+      setDataReady(false);
       try {
         const response = await fetch('/api/graphql', {
           method: 'POST',
@@ -270,11 +274,46 @@ export default function LandingPage() {
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
-        setLoading(false);
+        setDataReady(true);
       }
     };
     fetchData();
   }, [i18n.language]);
+
+  // Handle page ready state
+  useEffect(() => {
+    // Safety timeout: if video doesn't load within 5 seconds, proceed anyway
+    const timer = setTimeout(() => {
+      if (dataReady && !videoReady) {
+        console.log('Video loading timed out, proceeding...');
+        setVideoReady(true);
+      }
+    }, 5000);
+
+    if (dataReady && (videoReady || !heroSettings?.video_url)) {
+      const tl = gsap.timeline({
+        onComplete: () => setShowContent(true)
+      });
+
+      tl.to(loadingOverlayRef.current, {
+        opacity: 0,
+        duration: 1,
+        ease: 'power4.inOut',
+        delay: 0.5
+      });
+    }
+
+    return () => clearTimeout(timer);
+  }, [dataReady, videoReady, heroSettings]);
+
+  // Disable scroll while loading
+  useEffect(() => {
+    if (!showContent) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [showContent]);
 
   const filteredCars = selectedService ? cars.filter(car => car.service_type === selectedService) : [];
 
@@ -291,7 +330,44 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation - Premium Design */}
+      {/* Premium Loading Screen */}
+      {!showContent && (
+        <div
+          ref={loadingOverlayRef}
+          className="fixed inset-0 z-[100] bg-[#0a0a0a] flex flex-col items-center justify-center"
+        >
+          {/* Animated Logo Container */}
+          <div className="relative mb-8">
+            <Image
+              src="/logo2.png"
+              alt="Jasmin Rent Cars"
+              width={200}
+              height={200}
+              className="w-32 sm:w-48 md:w-64 h-auto animate-pulse"
+              priority
+            />
+            {/* Golden glowing ring */}
+            <div className="absolute inset-0 border-2 border-[#FFC800]/20 rounded-full animate-ping scale-150 opacity-20"></div>
+          </div>
+
+          {/* Premium Spinner */}
+          <div className="relative flex flex-col items-center">
+            <div className="w-12 h-12 md:w-16 md:h-16 border-t-2 border-b-2 border-[#FFC800] rounded-full animate-spin"></div>
+            <div className="mt-6 flex flex-col items-center gap-2">
+              <span className="text-[#FFC800] font-bold uppercase tracking-[0.3em] text-xs sm:text-sm animate-pulse">
+                {t('loadingExperience') || 'Loading Experience'}
+              </span>
+              <div className="w-32 h-[1px] bg-gradient-to-r from-transparent via-[#FFC800]/50 to-transparent"></div>
+            </div>
+          </div>
+
+          {/* Glassmorphism Background Elements */}
+          <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-[#FFC800]/5 rounded-full blur-[100px] animate-blob"></div>
+          <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-[#FFC800]/5 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
+        </div>
+      )}
+
+      {/* Main Content */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled
         ? 'bg-[#0a0a0a]/98 backdrop-blur-xl shadow-2xl'
         : 'bg-gradient-to-b from-black/80 via-black/50 to-transparent'
@@ -524,22 +600,16 @@ export default function LandingPage() {
               <div className="mb-6">
                 <h3 className="text-[#FFC800] text-xs font-bold uppercase mb-3 tracking-wider">{t('menuCompany')}</h3>
                 <div className="space-y-1">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      setTimeout(() => {
-                        const el = document.querySelector('#why-choose');
-                        el?.scrollIntoView({ behavior: 'auto', block: 'start' });
-                      }, 100);
-                    }}
+                  <Link
+                    href="/about"
+                    onClick={() => setMenuOpen(false)}
                     className="w-full text-left px-3 py-3 text-white hover:bg-[#FFC800]/20 rounded-md transition-all flex items-center gap-3"
                   >
                     <span className="text-xl">ℹ️</span>
                     <span className="text-sm font-semibold">{t('aboutUs')}</span>
-                  </button>
+                  </Link>
 
-               
+
 
                   <a
                     href="/login"
@@ -587,7 +657,7 @@ export default function LandingPage() {
       <section className="hero-section relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-32 sm:pt-36 md:pt-0">
         {heroSettings?.video_url ? (
           <div className="absolute inset-0 z-0">
-            <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+            <video autoPlay loop muted playsInline className="w-full h-full object-cover" onLoadedData={() => setVideoReady(true)}>
               <source src={heroSettings.video_url} type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-black/40" />
@@ -595,18 +665,18 @@ export default function LandingPage() {
         ) : (
           <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-700 to-gray-900" />
         )}
-        <div className="hero-content relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-12 sm:py-16 md:py-20 flex-1 flex items-end justify-center pb-12 sm:pb-16 md:pb-20" key={i18n.language}>
+        <div className="hero-content relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-12 sm:py-16 md:py-20 flex-1 flex items-center md:items-end justify-center pb-12 sm:pb-16 md:pb-20" key={i18n.language}>
           <div className="max-w-[1400px] mx-auto text-center w-full">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white leading-tight mb-4 sm:mb-6 md:mb-8">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white leading-tight mb-4 sm:mb-6 md:mb-8 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
               {getTranslatedText(heroSettings?.title, 'Welcome to Jasmin Rent Cars')}
             </h1>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white/90 mb-6 sm:mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white/90 mb-6 sm:mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] font-medium">
               {getTranslatedText(heroSettings?.subtitle, 'Your Premium Car Rental Experience')}
             </p>
           </div>
         </div>
 
-      
+
 
         {/* Scroll Indicator - positioned at bottom center */}
         <div className="relative z-10 pb-8 sm:pb-10 md:pb-12 flex flex-col items-center">
@@ -625,19 +695,13 @@ export default function LandingPage() {
             </svg>
           </button>
         </div>
-          {/* Our Services Heading - positioned at bottom center above scroll indicator */}
-        <div className="relative z-10 pb-4 sm:pb-6 flex flex-col items-center">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide text-center">
-            {t('ourServices')}
-          </h2>
-        </div>
       </section>
       {/* Services Section */}
       <section id="services" className="py-12 sm:py-16 md:py-24 lg:py-32 bg-[#0a0a0a]">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            {/* <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('ourServices')}</h2> */}
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto">{t('premiumLuxuryTransport')}</p>
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-[#FFC800] mb-3 sm:mb-4 md:mb-6 uppercase tracking-tight drop-shadow-xl">{t('ourServices')}</h2>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">{t('premiumLuxuryTransport')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             {[
@@ -681,22 +745,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-         {/* CTA Buttons Section */}
-        <section className="relative py-4 sm:py-6 md:py-8 bg-gradient-to-b from-[#0a0a0a] to-[#000000]">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 justify-center items-center">
-              <button
-                onClick={() => setIsSpinWheelOpen(true)}
-                className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/50 overflow-hidden w-full sm:w-auto"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
-                <span className="relative text-2xl sm:text-3xl md:text-4xl">🎁</span>
-                <span className="relative">{t('giftOffer')}</span>
-              </button>
-         
-            </div>
+      {/* CTA Buttons Section */}
+      <section className="relative py-4 sm:py-6 md:py-8 bg-gradient-to-b from-[#0a0a0a] to-[#000000]">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 justify-center items-center">
+            <button
+              onClick={() => setIsSpinWheelOpen(true)}
+              className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm sm:text-base md:text-lg lg:text-xl font-black uppercase tracking-wider transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/50 overflow-hidden w-full sm:w-auto"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
+              <span className="relative text-2xl sm:text-3xl md:text-4xl">🎁</span>
+              <span className="relative">{t('giftOffer')}</span>
+            </button>
+
           </div>
-        </section>
+        </div>
+      </section>
       {/* Fleet Section */}
       <section id="fleet" className="py-12 sm:py-16 md:py-24 bg-[#0a0a0a]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -721,8 +785,8 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {loading ? (
-            <div className="text-center py-16 sm:py-24 md:py-32">
+          {!dataReady ? (
+            <div className="text-center py-10 sm:py-24 md:py-32">
               <div className="inline-block animate-spin rounded-full h-10 w-10 sm:h-14 sm:w-14 md:h-20 md:w-20 border-4 border-[#FFC800] border-t-transparent"></div>
               <p className="mt-4 sm:mt-6 text-gray-300 text-sm sm:text-base md:text-xl font-semibold">{t('loadingPremiumFleet')}</p>
             </div>
@@ -735,18 +799,18 @@ export default function LandingPage() {
               ))}
             </div>
           ) : !selectedService ? (
-            <div className="text-center py-12 sm:py-20 md:py-32 bg-[#1a1a1a] shadow-lg border border-gray-800">
-              <div className="text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6 md:mb-8">👆</div>
-              <h3 className="text-lg sm:text-xl md:text-3xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('chooseService')}</h3>
-              <p className="text-gray-300 text-xs sm:text-sm md:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+            <div className="text-center py-10 sm:py-20 md:py-32 bg-[#1a1a1a] shadow-lg border border-gray-800">
+              <div className="text-4xl sm:text-6xl md:text-8xl mb-4 sm:mb-6 md:mb-8">👆</div>
+              <h3 className="text-base sm:text-xl md:text-3xl font-bold text-white mb-2 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('chooseService')}</h3>
+              <p className="text-gray-300 text-[10px] sm:text-sm md:text-lg max-w-2xl mx-auto leading-relaxed px-4 opacity-80">
                 {t('selectServiceDesc') || "Please select a service above to view available vehicles."}
               </p>
             </div>
           ) : (
-            <div className="text-center py-12 sm:py-20 md:py-32 bg-[#1a1a1a] shadow-lg border border-gray-800">
-              <div className="text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6 md:mb-8">🚗</div>
-              <h3 className="text-lg sm:text-xl md:text-3xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('noVehiclesAvailable')}</h3>
-              <p className="text-gray-300 text-xs sm:text-sm md:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+            <div className="text-center py-10 sm:py-20 md:py-32 bg-[#1a1a1a] shadow-lg border border-gray-800">
+              <div className="text-4xl sm:text-6xl md:text-8xl mb-4 sm:mb-6 md:mb-8">🚗</div>
+              <h3 className="text-base sm:text-xl md:text-3xl font-bold text-white mb-2 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('noVehiclesAvailable')}</h3>
+              <p className="text-gray-300 text-[10px] sm:text-sm md:text-lg max-w-2xl mx-auto leading-relaxed px-4 opacity-80">
                 {t('updatingFleet')}
               </p>
             </div>
@@ -770,22 +834,21 @@ export default function LandingPage() {
         )}
         <div className="relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-10 sm:py-14 md:py-20">
           <div className="max-w-[1400px] mx-auto">
-            <div className="max-w-2xl">
-              <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-3 sm:mb-4 md:mb-6">{t('airportAssuredService')}</h2>
-              <p className="text-xs sm:text-sm md:text-lg lg:text-xl text-white mb-4 sm:mb-6 md:mb-8 leading-relaxed">
+            <div className="max-w-2xl bg-black/40 backdrop-blur-md p-6 sm:p-0 sm:bg-transparent sm:backdrop-blur-none rounded-2xl">
+              <h2 className="text-2xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight mb-4 sm:mb-4 md:mb-6 drop-shadow-2xl">{t('airportAssuredService')}</h2>
+              <p className="text-sm sm:text-sm md:text-lg lg:text-xl text-white mb-6 sm:mb-6 md:mb-8 leading-relaxed font-medium drop-shadow-lg">
                 {t('airportTransferDesc')}
               </p>
-              <ul className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 md:mb-10">
+              <ul className="space-y-3 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 md:mb-10">
                 {[t('realTimeFlightTracking'), t('fixedPricingNoHiddenFees'), t('professionalChauffeurs')].map((item) => (
-                  <li key={item} className="flex items-start text-white">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#FFC800] mr-2 sm:mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <li key={item} className="flex items-start text-white drop-shadow-lg font-bold">
+                    <svg className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#FFC800] mr-2 sm:mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                     <span className="text-xs sm:text-sm md:text-lg">{item}</span>
                   </li>
                 ))}
               </ul>
-         
             </div>
           </div>
         </div>
@@ -805,7 +868,7 @@ export default function LandingPage() {
             <source src="/back1.mp4" type="video/mp4" />
           </video>
         </div>
-     
+
         {/* Why Choose Us Section */}
         <section id="why-choose" className="relative py-12 sm:py-16 md:py-24 z-10">
           {/* Dark overlay that fades */}
@@ -813,20 +876,19 @@ export default function LandingPage() {
 
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-8 sm:mb-12 md:mb-16 lg:mb-20">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide">{t('whyChooseJasmin')}</h2>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto">{t('trustedByThousands')}</p>
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 md:mb-6 uppercase tracking-wide drop-shadow-lg">{t('whyChooseJasmin')}</h2>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 max-w-3xl mx-auto font-medium drop-shadow-md">{t('trustedByThousands')}</p>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-4 md:gap-8 lg:gap-12">
               {[
                 { icon: '💎', title: t('premiumQuality'), desc: t('premiumQualityDesc') },
                 { icon: '⚡', title: t('instantBooking'), desc: t('instantBookingDesc') },
-                { icon: '🔒', title: t('securePayment'), desc: t('securePaymentDesc') },
-
+                { icon: '🌸', title: t('securePayment'), desc: t('securePaymentDesc') },
               ].map((feature) => (
-                <div key={feature.title} className="feature-card text-center group">
-                  <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-2 sm:mb-3 md:mb-6 transform group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
-                  <h3 className="text-xs sm:text-sm md:text-base lg:text-xl font-bold text-white mb-1 sm:mb-2 md:mb-3 uppercase tracking-wide">{feature.title}</h3>
-                  <p className="text-gray-300 text-[10px] sm:text-xs md:text-sm lg:text-base leading-relaxed">{feature.desc}</p>
+                <div key={feature.title} className="feature-card text-center group bg-black/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/10 hover:border-[#FFC800]/50 transition-all duration-300 shadow-xl">
+                  <div className="text-4xl sm:text-5xl lg:text-6xl mb-4 sm:mb-6 transform group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
+                  <h3 className="text-base sm:text-lg lg:text-2xl font-black text-[#FFC800] mb-2 sm:mb-3 uppercase tracking-tighter drop-shadow-lg">{feature.title}</h3>
+                  <p className="text-white text-xs sm:text-sm lg:text-base font-semibold leading-relaxed drop-shadow-md opacity-100">{feature.desc}</p>
                 </div>
               ))}
             </div>
@@ -834,20 +896,20 @@ export default function LandingPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="cta-section relative py-12 sm:py-16 md:py-24 lg:py-32 text-white text-center z-10">
+        <section className="cta-section relative py-16 sm:py-24 md:py-32 text-white text-center z-10">
           {/* Lighter overlay for CTA */}
-          <div className="absolute inset-0 bg-black/40 z-0" />
+          <div className="absolute inset-0 bg-black/50 z-0" />
 
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-bold mb-3 sm:mb-4 md:mb-6 lg:mb-8 uppercase tracking-wide">{t('readyToBook')}</h2>
-            <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl text-gray-300 mb-4 sm:mb-6 md:mb-8 lg:mb-12 max-w-3xl mx-auto leading-relaxed">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black mb-4 sm:mb-6 md:mb-8 uppercase tracking-tighter drop-shadow-2xl">{t('readyToBook')}</h2>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white mb-8 sm:mb-10 md:mb-12 max-w-4xl mx-auto leading-relaxed drop-shadow-lg opacity-90">
               {t('experienceProfessional')}
             </p>
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="inline-flex items-center space-x-2 sm:space-x-3 px-5 sm:px-6 md:px-8 lg:px-12 py-2.5 sm:py-3 md:py-4 lg:py-6 bg-[#FFC800] hover:bg-[#E6B500] text-black font-bold text-xs sm:text-sm md:text-base lg:text-xl uppercase tracking-wider transition-all transform hover:scale-105">
+              className="group inline-flex items-center space-x-3 px-8 sm:px-12 md:px-16 py-4 sm:py-5 md:py-7 bg-[#FFC800] hover:bg-white text-black font-black text-sm sm:text-lg md:text-2xl uppercase tracking-tighter transition-all transform hover:scale-105 shadow-[0_0_50px_rgba(255,200,0,0.3)]">
               <span>{t('getStartedCta')}</span>
-              <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+              <svg className="w-5 h-5 sm:w-6 md:w-8 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </div>
@@ -859,18 +921,18 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/50 z-0" />
 
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-8 lg:gap-12 mb-6 sm:mb-8 md:mb-12 lg:mb-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-6 md:gap-8 lg:gap-12 mb-10 sm:mb-8 md:mb-12 lg:mb-16 text-center sm:text-left">
               {[
-                { title: t('company'), links: [ { label: t('servicesFooter'), href: '#fleet' }, { label: t('fleet'), href: '#fleet' }, { label: t('careers'), href: '/login' }] },
-                { title: t('about'), links: [{ label: t('ourStory'), href: '#' }, { label: t('accreditations'), href: '#' }, { label: t('signUpFooter'), href: '/login' }] },
+                { title: t('company'), links: [{ label: t('servicesFooter'), href: '#fleet' }, { label: t('fleet'), href: '#fleet' }, { label: t('careers'), href: '/login' }] },
+                { title: t('about'), links: [{ label: t('ourStory'), href: '/about' }, { label: t('accreditations'), href: '#' }, { label: t('signUpFooter'), href: '/login' }] },
                 { title: t('support'), links: [{ label: t('helpCenter'), href: '#' }, { label: t('contactUs'), href: '#' }, { label: t('faqs'), href: '#' }, { label: t('support247'), href: '#' }] },
                 { title: t('services'), links: [{ label: t('weddingCarsFooter'), href: '#fleet' }, { label: t('airportTransferFooter'), href: '#fleet' }, { label: t('luxuryFleetFooter'), href: '#fleet' }, { label: t('chauffeurService'), href: '#fleet' }] },
               ].map((col) => (
                 <div key={col.title}>
-                  <h3 className="font-bold text-xs sm:text-sm md:text-base lg:text-lg mb-2 sm:mb-3 md:mb-4 lg:mb-6 uppercase tracking-wide">{col.title}</h3>
-                  <ul className="space-y-1.5 sm:space-y-2 md:space-y-3 lg:space-y-4 text-gray-300">
+                  <h3 className="font-black text-[#FFC800] text-sm sm:text-base lg:text-lg mb-4 sm:mb-3 md:mb-4 lg:mb-6 uppercase tracking-widest">{col.title}</h3>
+                  <ul className="space-y-3 sm:space-y-2 md:space-y-3 lg:space-y-4 text-gray-300">
                     {col.links.map((link) => (
-                      <li key={link.label}><a href={link.href} className="hover:text-white transition-colors text-[10px] sm:text-xs md:text-sm lg:text-base">{link.label}</a></li>
+                      <li key={link.label}><a href={link.href} className="hover:text-[#FFC800] transition-colors text-xs sm:text-xs md:text-sm lg:text-base font-bold uppercase tracking-tight">{link.label}</a></li>
                     ))}
                   </ul>
                 </div>
