@@ -138,7 +138,6 @@ const resources = {
       signUpFooter: 'Sign Up',
       mobileApp: 'Mobile App',
       support: 'Support',
-      helpCenter: 'Help Center',
       contactUs: 'Contact Us',
       faqs: 'FAQs',
       support247: '24/7 Support',
@@ -1755,8 +1754,8 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // Always start with English for SSR
-    fallbackLng: 'en',
+    lng: 'fr', // Always start with French for SSR
+    fallbackLng: 'fr',
     react: {
       useSuspense: false,
     },
@@ -1768,7 +1767,7 @@ i18n
 // Load saved language on client side only
 if (typeof window !== 'undefined') {
   const savedLanguage = localStorage.getItem('language');
-  if (savedLanguage && savedLanguage !== 'en') {
+  if (savedLanguage && savedLanguage !== 'fr') {
     i18n.changeLanguage(savedLanguage);
   }
 }

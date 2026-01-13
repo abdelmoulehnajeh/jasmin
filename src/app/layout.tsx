@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import './globals-responsive.css';
@@ -6,10 +6,21 @@ import { I18nProvider } from './i18n-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
 export const metadata: Metadata = {
-  title: 'Jasmin Rent Cars - Premium Luxury Car Rentals',
-  description: 'Rent luxury cars for weddings and transfers with 3D visualization and multilingual support',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes',
+  title: 'Jasmin Location des voitures - Location des voitures de luxe haut de gamme',
+  description: 'Vous recherchez une voiture de luxe pour votre mariage ou vos événements ? Vous êtes à la bonne adresse.',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({
@@ -18,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" bbai-tooltip-injected="true">
+    <html lang="fr" bbai-tooltip-injected="true">
       <body className={inter.className}>
         <I18nProvider>{children}</I18nProvider>
       </body>

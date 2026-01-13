@@ -30,7 +30,7 @@ export default function LandingPage() {
   const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
   const [dataReady, setDataReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [showContent, setShowContent] = useState(false);
+  const [showContent, setShowContent] = useState(true);
   const [heroSettings, setHeroSettings] = useState<HeroSettings | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -241,21 +241,13 @@ export default function LandingPage() {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      // console.log('🌍 Fetching data for language:', i18n.language);
-      setDataReady(false);
+    const fetchHero = async () => {
       try {
         const response = await fetch('/api/graphql', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            query: `query GetLandingData($language: String) {
-              cars(language: $language) {
-                id name brand model year price_per_day description
-                image_base64 gallery model_3d_url status service_type features
-                specs { engine transmission fuelType seats color }
-                total_count available_count average_rating total_ratings
-              }
+            query: `query GetHeroData($language: String) {
               heroSettings(language: $language) {
                 video_url title subtitle
               }
@@ -264,56 +256,60 @@ export default function LandingPage() {
           }),
         });
         const result = await response.json();
+        if (result.data?.heroSettings) setHeroSettings(result.data.heroSettings);
+      } catch (e) { console.error('Hero fetch failed', e); }
+    };
+
+    const fetchCars = async () => {
+      setDataReady(false);
+      try {
+        const response = await fetch('/api/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: `query GetCarsData($language: String) {
+              cars(language: $language) {
+                id name brand model year price_per_day description
+                image_base64 gallery model_3d_url status service_type features
+                specs { engine transmission fuelType seats color }
+                total_count available_count average_rating total_ratings
+              }
+            }`,
+            variables: { language: i18n.language || 'en' },
+          }),
+        });
+        const result = await response.json();
         if (result.data?.cars) setCars(result.data.cars);
-        if (result.data?.heroSettings) {
-          // console.log('Hero settings received:', result.data.heroSettings);
-          // console.log('Title:', result.data.heroSettings.title);
-          // console.log('Subtitle:', result.data.heroSettings.subtitle);
-          setHeroSettings(result.data.heroSettings);
-        }
       } catch (error) {
-        console.error('Failed to fetch data:', error);
+        console.error('Failed to fetch cars:', error);
       } finally {
         setDataReady(true);
       }
     };
-    fetchData();
+
+    fetchHero();
+    fetchCars();
   }, [i18n.language]);
 
-  // Handle page ready state
+  // Optimize page visibility
   useEffect(() => {
-    // Safety timeout: if video doesn't load within 5 seconds, proceed anyway
-    const timer = setTimeout(() => {
-      if (dataReady && !videoReady) {
-        console.log('Video loading timed out, proceeding...');
-        setVideoReady(true);
-      }
-    }, 5000);
-
-    if (dataReady && (videoReady || !heroSettings?.video_url)) {
-      const tl = gsap.timeline({
-        onComplete: () => setShowContent(true)
-      });
-
-      tl.to(loadingOverlayRef.current, {
+    // Reveal content as soon as basic structure is ready
+    if (showContent && loadingOverlayRef.current) {
+      gsap.to(loadingOverlayRef.current, {
         opacity: 0,
-        duration: 1,
-        ease: 'power4.inOut',
-        delay: 0.5
+        duration: 0.5,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          if (loadingOverlayRef.current) loadingOverlayRef.current.style.display = 'none';
+        }
       });
-    }
-
-    return () => clearTimeout(timer);
-  }, [dataReady, videoReady, heroSettings]);
-
-  // Disable scroll while loading
-  useEffect(() => {
-    if (!showContent) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
     }
   }, [showContent]);
+
+  // Disable scroll while loading logic can be removed if showing content immediately
+  useEffect(() => {
+    document.body.style.overflow = '';
+  }, []);
 
   const filteredCars = selectedService ? cars.filter(car => car.service_type === selectedService) : [];
 
@@ -331,39 +327,22 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Premium Loading Screen */}
-      {!showContent && (
+      {/* Optimized Loading Transition */}
+      {showContent && (
         <div
           ref={loadingOverlayRef}
-          className="fixed inset-0 z-[100] bg-[#0a0a0a] flex flex-col items-center justify-center"
+          className="fixed inset-0 z-[100] bg-[#0a0a0a] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-500"
         >
-          {/* Animated Logo Container */}
           <div className="relative mb-8">
             <Image
               src="/logo2.png"
               alt="Jasmin Rent Cars"
               width={200}
               height={200}
-              className="w-32 sm:w-48 md:w-64 h-auto animate-pulse"
+              className="w-16 h-auto opacity-50"
               priority
             />
-            {/* Golden glowing ring */}
-            <div className="absolute inset-0 border-2 border-[#FFC800]/20 rounded-full animate-ping scale-150 opacity-20"></div>
           </div>
-
-          {/* Premium Spinner */}
-          <div className="relative flex flex-col items-center">
-            <div className="w-12 h-12 md:w-16 md:h-16 border-t-2 border-b-2 border-[#FFC800] rounded-full animate-spin"></div>
-            <div className="mt-6 flex flex-col items-center gap-2">
-              <span className="text-[#FFC800] font-bold uppercase tracking-[0.3em] text-xs sm:text-sm animate-pulse">
-                {t('loadingExperience') || 'Loading Experience'}
-              </span>
-              <div className="w-32 h-[1px] bg-gradient-to-r from-transparent via-[#FFC800]/50 to-transparent"></div>
-            </div>
-          </div>
-
-          {/* Glassmorphism Background Elements */}
-          <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-[#FFC800]/5 rounded-full blur-[100px] animate-blob"></div>
-          <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-[#FFC800]/5 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
         </div>
       )}
 
@@ -655,16 +634,12 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="hero-section relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-32 sm:pt-36 md:pt-0">
-        {heroSettings?.video_url ? (
-          <div className="absolute inset-0 z-0">
-            <video autoPlay loop muted playsInline className="w-full h-full object-cover" onLoadedData={() => setVideoReady(true)}>
-              <source src={heroSettings.video_url} type="video/mp4" />
-            </video>
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
-        ) : (
-          <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-700 to-gray-900" />
-        )}
+        <div className="absolute inset-0 z-0">
+          <video autoPlay loop muted playsInline preload="auto" className="w-full h-full object-cover" onLoadedData={() => setVideoReady(true)}>
+            <source src="/back1.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
         <div className="hero-content relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-12 sm:py-16 md:py-20 flex-1 flex items-center md:items-end justify-center pb-12 sm:pb-16 md:pb-20" key={i18n.language}>
           <div className="max-w-[1400px] mx-auto text-center w-full">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white leading-tight mb-4 sm:mb-6 md:mb-8 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
@@ -822,16 +797,12 @@ export default function LandingPage() {
 
       {/* Video Section - Airport Transfers */}
       <section className="relative min-h-[50vh] sm:min-h-[60vh] md:min-h-screen flex items-center overflow-hidden">
-        {heroSettings?.video_url ? (
-          <div className="absolute inset-0 z-0">
-            <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-              <source src={heroSettings.video_url} type="video/mp4" />
-            </video>
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
-        ) : (
-          <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-800 to-gray-900" />
-        )}
+        <div className="absolute inset-0 z-0">
+          <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+            <source src="/back1.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
         <div className="relative z-10 w-full px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-10 sm:py-14 md:py-20">
           <div className="max-w-[1400px] mx-auto">
             <div className="max-w-2xl bg-black/40 backdrop-blur-md p-6 sm:p-0 sm:bg-transparent sm:backdrop-blur-none rounded-2xl">
