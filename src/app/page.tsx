@@ -347,6 +347,16 @@ export default function LandingPage() {
       )}
 
       {/* Main Content */}
+      <h1 className="sr-only">
+        Jasmin Rent Cars - Location de voiture mariage, Louer voiture Tunisie, Transfert Aéroport, Rent car Tunisia
+      </h1>
+      <div className="hidden" aria-hidden="true">
+        <h2>Location voiture mariage Tunisie</h2>
+        <p>Expert en transfert mariage et location de voitures de luxe. Louer voiture pour mariage, cortège, et événements spéciaux.</p>
+        <h2>Transfert Aéroport Tunis</h2>
+        <p>Service de transfert aéroport ponctuel et professionnel. Rent a car in Tunisia for weddings and airport shuttles.</p>
+      </div>
+
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled
         ? 'bg-[#0a0a0a]/98 backdrop-blur-xl shadow-2xl'
         : 'bg-gradient-to-b from-black/80 via-black/50 to-transparent'
@@ -680,8 +690,8 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             {[
-              { type: 'marriage', icon: '💍', image: '/mariage.png', title: t('wedding'), desc: t('weddingServiceDesc'), gradient: 'from-pink-900/20 to-purple-900/20' },
-              { type: 'transfer', icon: '✈️', image: '/transfert.png', title: t('transferTitle'), desc: t('transferServiceDesc'), gradient: 'from-blue-900/20 to-cyan-900/20' }
+              { type: 'marriage', icon: '💍', image: '/mariage.png', title: t('wedding') + ' - Location voiture mariage luxe', desc: t('weddingServiceDesc'), gradient: 'from-pink-900/20 to-purple-900/20' },
+              { type: 'transfer', icon: '✈️', image: '/transfert.png', title: t('transferTitle') + ' Aéroport Tunisie - Louer voiture', desc: t('transferServiceDesc'), gradient: 'from-blue-900/20 to-cyan-900/20' }
             ].map((service) => (
               <div key={service.type}
                 onClick={() => { setSelectedService(service.type as ServiceType); document.querySelector('#fleet')?.scrollIntoView({ behavior: 'smooth' }); }}
