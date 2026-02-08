@@ -412,7 +412,7 @@ function LoginContent() {
                       setPromoValidated(false);
                       setPromoError('');
                     }}
-                    className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 bg-black/50 border-2 ${promoValidated
+                    className={`flex-1 w-full sm:w-0 min-w-0 px-4 py-3 sm:px-6 sm:py-4 bg-black/50 border-2 ${promoValidated
                       ? 'border-green-500'
                       : promoError
                         ? 'border-red-500'
@@ -424,7 +424,7 @@ function LoginContent() {
                     type="button"
                     onClick={validatePromoCode}
                     disabled={validatingPromo || !promoCode.trim()}
-                    className="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm rounded-xl transition-all whitespace-nowrap shrink-0"
+                    className="w-full sm:w-[140px] px-2 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-xs rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center justify-center"
                   >
                     {validatingPromo ? '...' : promoValidated ? '✓' : t('applyBtn')}
                   </button>
@@ -460,24 +460,6 @@ function LoginContent() {
               </button>
             </div>
 
-            {/* Demo Accounts - hide on signup */}
-            {!isSignup && (
-              <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t-2 border-gray-800">
-                <p className="text-xs sm:text-sm text-gray-400 text-center mb-3 sm:mb-4 font-bold">{t('demoAccounts')}</p>
-                <div className="space-y-2 sm:space-y-3">
-                  <div className="bg-black/50 border-2 border-gold-500/20 rounded-xl p-3 sm:p-4">
-                    <p className="font-black text-gold-500 text-xs sm:text-sm mb-1 sm:mb-2">{t('adminAccess')}</p>
-                    <p className="text-gray-400 text-xs sm:text-sm">Email: admin@carrental.com</p>
-                    <p className="text-gray-400 text-xs sm:text-sm">Password: Admin@123</p>
-                  </div>
-                  <div className="bg-black/50 border-2 border-green-500/20 rounded-xl p-3 sm:p-4">
-                    <p className="font-black text-green-500 text-xs sm:text-sm mb-1 sm:mb-2">{t('userAccess')}</p>
-                    <p className="text-gray-400 text-xs sm:text-sm">Email: user@test.com</p>
-                    <p className="text-gray-400 text-xs sm:text-sm">Password: User@123</p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Links */}
             <div className="mt-6 sm:mt-8 text-center">
